@@ -28,22 +28,21 @@ void PhiPQhist() {
     char target[] = "Fe"; // The material of the target is needed!
     string prename = Form("histPhiPQ_%s_",target);
 
+    float limits[4] = {0., 1.35, 1.82, 5.}; // Q2 limits on each bin. Calculated using quantiles!
+
     int Nbins = 3; //
     for (int i=0; i<Nbins; i++){ // histPhiPQ_D_XY: {X: Q2 bin; Y: Nu bin}
-        float Q2min = i*5./Nbins;
-        float Q2max = (i+1)*5./Nbins;
-
-        auto histnameD0 = new TH1F(Form("histPhiPQ_D_%d0",i),Form("D target, %.2f < Q^{2} < %.2f, 0 < #nu < 2.5;#phi_{PQ} [degree];Counts",Q2min,Q2max),360,-180,180);
+        auto histnameD0 = new TH1F(Form("histPhiPQ_D_%d0",i),Form("D target, %.2f < Q^{2} < %.2f, 0 < #nu < 2.5;#phi_{PQ} [degree];Counts",limits[i],limits[i+1]),360,-180,180);
         histPhiPQ_D.push_back(histnameD0);
-        auto histnameD1 = new TH1F(Form("histPhiPQ_D_%d1",i),Form("D target, %.2f < Q^{2} < %.2f, 2.5 < #nu < 5.0;#phi_{PQ} [degree];Counts",Q2min,Q2max),360,-180,180);
+        auto histnameD1 = new TH1F(Form("histPhiPQ_D_%d1",i),Form("D target, %.2f < Q^{2} < %.2f, 2.5 < #nu < 5.0;#phi_{PQ} [degree];Counts",limits[i],limits[i+1]),360,-180,180);
         histPhiPQ_D.push_back(histnameD1);
 
         string num = to_string(i);
         string name0 = prename + num + "0";
-        auto histnameX0 = new TH1F(name0.c_str(), Form("%s target, %.2f < Q^{2} < %.2f, 0 < #nu < 2.5;#phi_{PQ} [degree];Counts",target,Q2min,Q2max),360,-180,180);
+        auto histnameX0 = new TH1F(name0.c_str(), Form("%s target, %.2f < Q^{2} < %.2f, 0 < #nu < 2.5;#phi_{PQ} [degree];Counts",target,limits[i],limits[i+1]),360,-180,180);
         histPhiPQ_X.push_back(histnameX0);
         string name1 = prename + num + "1";
-        auto histnameX1 = new TH1F(name1.c_str(), Form("%s target, %.2f < Q^{2} < %.2f, 2.5 < #nu < 5.0;#phi_{PQ} [degree];Counts",target,Q2min,Q2max),360,-180,180);
+        auto histnameX1 = new TH1F(name1.c_str(), Form("%s target, %.2f < Q^{2} < %.2f, 2.5 < #nu < 5.0;#phi_{PQ} [degree];Counts",target,limits[i],limits[i+1]),360,-180,180);
         histPhiPQ_X.push_back(histnameX1);
     }
 
@@ -54,17 +53,17 @@ void PhiPQhist() {
         // if (i == 25) break; // Disable this line for real run!!!
         tree->GetEntry(i);
         
-        if (pid != 211) continue;
+        if (pid != 211 || TargType == 0) continue;
 
         // Liquid target
         if (TargType == 1){
-            for (int j=0; j<Nbins; j++){ // j: loop on Q2 bins -> 1.667 / 3.333 / 5.000
-                if ( Q2<(j+1)*5./Nbins && Nu<2.5 ){ // 5. stands for the upper limit of Q2 and 2.5 as a cut for Nu (Should be enhanced to quantiles)
+            for (int j=0; j<Nbins; j++){ // j: loop on Q2 bins -> {0., 1.35, 1.82, 5.}
+                if ( Q2<limits[j+1] && Nu<2.5 ){ // 2.5 stands for a cut on Nu (Should be enhanced to quantiles)
                     histPhiPQ_D[2*j]->Fill(PhiPQ);
                     break;
                 }
 
-                if ( Q2<(j+1)*5./Nbins && Nu<5.){
+                if ( Q2<limits[j+1] && Nu<5.){
                     histPhiPQ_D[2*j+1]->Fill(PhiPQ);
                     break;
                 }
@@ -74,12 +73,12 @@ void PhiPQhist() {
         // Solid target
         if (TargType == 2){
             for (int j=0; j<Nbins; j++){ // j: loop on Q2 bins
-                if ( Q2<(j+1)*5./Nbins && Nu<2.5 ){ // 5. stands for the upper limit of Q2 and 2.5 as a cut for Nu (Should be enhanced to quantiles)
+                if ( Q2<limits[j+1] && Nu<2.5 ){ // 2.5 stands for a cut on Nu (Should be enhanced to quantiles)
                     histPhiPQ_X[2*j]->Fill(PhiPQ);
                     break;
                 }
 
-                if ( Q2<(j+1)*5./Nbins && Nu<5.){
+                if ( Q2<limits[j+1] && Nu<5.){
                     histPhiPQ_X[2*j+1]->Fill(PhiPQ);
                     break;
                 }
