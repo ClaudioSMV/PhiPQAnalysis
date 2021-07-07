@@ -1,25 +1,24 @@
 
-void anPhiNphe(){
+void analysisPhiPQ(){
     // Target names
     std::string target = "Fe"; // Change to analyse <target> = {D, C, Fe, Pb}
-    std::string target_n = target;
-    int target_type = 2; // Liquid target (D): 1; Solid target [DEFAULT] (C, Fe, Pb): 2; Not-recognized (?): 0;
+    std::string n = "1";
+
+    std::string target_n = target+n;
+    int real_targ = 2; // Liquid target (D): 1; Solid target [DEFAULT] (C, Fe, Pb): 2; Not-recognized (?): 0;
 
     if (target == "D"){
         // target_n = "D"; // NEEDS COMPLETE!!
-        target_type = 1;
-    }
-    if (target == "Fe"){
-        target_n = "Fe1"; // Necessary to enter in the correct data-file
+        real_targ = 1;
     }
 
     // Data
-    TFile *data = TFile::Open(Form("/home/claudio/work/clas-data/data_%s_light.root",target_n.c_str()));
+    TFile *data = TFile::Open(Form("/home/claudio/work/clas-data/data_%s_light.root",target_n.c_str()),"READ");
     TTree *tree = (TTree*) data->Get("ntuple_data");
 
     // I/O
-    TFile *accinput = TFile::Open(Form("Acceptance_%s1.root",target.c_str()));
-    TFile *output = TFile::Open(Form("Analysis_%s_3.root",target_n.c_str()),"RECREATE");
+    TFile *accinput = TFile::Open(Form("Acceptance_%s.root",target_n.c_str()),"READ");
+    TFile *output = TFile::Open(Form("Analysis_%s.root",target_n.c_str()),"RECREATE");
 
     // Create acceptance histograms
     TH1F *hacc = (TH1F*) accinput->Get("hacc");
@@ -31,12 +30,12 @@ void anPhiNphe(){
     // TH1F *hcorr = new TH1F("hcorr",Form("Corrected data %s, 1.35 < Q^{2} #leq 1.82, #nu #geq 2",target.c_str()),360,-180,180);
 
     // Definitions
-    // Electron's variables (float)
+    // Electron's variables (float or int)
     float Q2 = -99;
     float Nu = -99;
     int TargType = -99;
 
-    // Particles' variables (vector<float>)
+    // Particles' variables (vector<float or int>)
     std::vector<int> *pid = 0;
     std::vector<float> *PhiPQ = 0;
     std::vector<float> *Nphe = 0;
@@ -60,21 +59,21 @@ void anPhiNphe(){
         // Create target histograms
         std::string nameraw = "hraw1" + to_string(i);
 
-        auto hraw = new TH1F(nameraw.c_str(), Form("Raw data on %s target, %.2f < Q^{2} < %.2f, %i #leq Nphe < %i;#phi_{PQ} [deg];Counts",target.c_str(),limits[1],limits[2],5*i,5*(i+1)),360,-180,180); // #nu #geq 2
+        auto hraw = new TH1F(nameraw.c_str(), Form("Raw data on %s target, %.2f < Q^{2} < %.2f, %i #leq Nphe < %i;#phi_{PQ} [deg];Counts",target_n.c_str(),limits[1],limits[2],5*i,5*(i+1)),360,-180,180); // #nu #geq 2
         hraw_v.push_back(hraw);
 
         std::string namecorr = "hcorr1" + to_string(i);
 
-        auto hcorr = new TH1F(namecorr.c_str(), Form("Corrected data on %s target, %.2f < Q^{2} < %.2f, %i #leq Nphe < %i;#phi_{PQ} [deg];Counts",target.c_str(),limits[1],limits[2],5*i,5*(i+1)),360,-180,180); // #nu #geq 2
+        auto hcorr = new TH1F(namecorr.c_str(), Form("Corrected data on %s target, %.2f < Q^{2} < %.2f, %i #leq Nphe < %i;#phi_{PQ} [deg];Counts",target_n.c_str(),limits[1],limits[2],5*i,5*(i+1)),360,-180,180); // #nu #geq 2
         hcorr_v.push_back(hcorr);
     }
 
     // Loop
     int Nentries = tree->GetEntries();
     for (int row=0; row<Nentries; row++){
-        // if (row==320) break;
+        // if (row==180) break;
         tree->GetEntry(row);
-        if (TargType != target_type) continue;
+        if (TargType != real_targ) continue;
 
         int ientries = PhiPQ->size();
         for (int i=0; i<ientries; i++){
