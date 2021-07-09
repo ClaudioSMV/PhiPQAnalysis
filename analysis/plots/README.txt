@@ -1,6 +1,8 @@
 ## Analysis plots
 ##
 
+NAME					N°FILES	: DESCRIPTION
+
 PlotCorrected<1,2,3>.pdf		(3)	: Old tuples (Says D target, but it should be Fe)
 PlotCorrected_Fe1_old.pdf		(1)	: New vectorial N-tuples for acceptance, but old data
 PlotCorrected_Fe1.pdf			(1)	: New hsim & new data (1/4th Fe files -> Low statistics)
