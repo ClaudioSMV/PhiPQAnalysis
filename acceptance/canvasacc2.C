@@ -1,3 +1,4 @@
+// Four targets acceptance comparison side by side
 
 void canvasacc2() {
 

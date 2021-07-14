@@ -1,3 +1,4 @@
+// Nphe vs kinematic variables, one run/file per target
 
 void canvasnphe() {
     std::string target = "Pb";

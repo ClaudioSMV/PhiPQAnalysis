@@ -1,3 +1,4 @@
+/* NOT REALLY IMPORTANT. Analysis made by separating Nphe in cuts */
 
 void analysisPhiPQ(){
     // Target names

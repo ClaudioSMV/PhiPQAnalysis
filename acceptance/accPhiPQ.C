@@ -1,3 +1,5 @@
+/* Acceptance calculated by imposing general cuts to all kinematic variables at the same time,
+not dividing the cuts and calculating acceptance bin by bin (S.Morán's acceptance) */
 
 void accPhiPQ(){
     std::string target = "Fe"; // Change to calculate acceptance of <target> = {D, C, Fe, Pb}
@@ -5,7 +7,7 @@ void accPhiPQ(){
 
     if (target == "D") target_n=1;
 
-    TFile *input = TFile::Open(Form("/home/claudio/work/clas-data/hsim_%s1.root",target.c_str()),"READ");
+    TFile *input = TFile::Open(Form("../../hsim_%s1.root",target.c_str()),"READ");
     TTree *tree = (TTree*) input->Get("ntuple_sim");
 
     TFile *output = TFile::Open(Form("Acc_%s1_cuts2.root",target.c_str()),"RECREATE");
@@ -59,6 +61,7 @@ void accPhiPQ(){
 
         bool cut_el, cut_had; // Cuts applied over electron/hadron variables
         bool cut_mc_el, cut_mc_had; // Cuts applied over electron/hadron mc_variables
+
         if (TargType == target_n && Q2>Q2_limits[0] && Q2<Q2_limits[1] &&
           Xb>Xb_limits[0] && Xb<Xb_limits[1]) cut_el=true;
         else cut_el=false;
@@ -66,6 +69,7 @@ void accPhiPQ(){
           mc_Xb>Xb_limits[0] && mc_Xb<Xb_limits[1]) cut_mc_el=true;
         else cut_mc_el=false;
 
+        if (cut_el==false && cut_mc_el==false) continue; // Avoid entering a loop that won't add anything
         int ientries = PhiPQ->size();
         for (int i=0; i<ientries; i++){
             if ((*pid)[i]==211 && (*Nphe)[i]<25 && (*Zh)[i]>=Zh_limits[0] && (*Zh)[i]<=Zh_limits[1] && (*Pt2)[i]>=Pt2_limits[0] &&
