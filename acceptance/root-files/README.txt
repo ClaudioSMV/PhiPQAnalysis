@@ -10,3 +10,6 @@ Acceptance_<target>1_<l/g>25.root		(5)	: Acceptance calculated with Nphe cut, lo
 Acc_Fe1_CTest_l25.root				(1)	: First attempt to make use of Closure Test (CT) with Acceptance Nphe<25
 Acc_<target>1_cuts.root				(4)	: Acceptance with easy cuts and Nphe(hadrons)>25
 Acc_Fe1_cuts2.root				(1)	: Acceptance with easy cuts and Nphe(hadrons)<25
+AccSM_Fe1.root					(1)	: Acceptance using SMoran's way (need to check if all cuts are applied)
+AccSM_Fe1_light.root				(1)	: Same as above but without all acceptance hists saved (lighter file)
+AccCSMV_Fe1.root				(1)	: Acceptance using Claudio's way (need to check if all cuts are applied)

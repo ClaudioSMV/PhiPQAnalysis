@@ -7,10 +7,10 @@ void accPhiPQ(){
 
     if (target == "D") target_n=1;
 
-    TFile *input = TFile::Open(Form("../../hsim_%s1.root",target.c_str()),"READ");
+    TFile *input = TFile::Open(Form("../../hsim_%s1V2.root",target.c_str()),"READ");
     TTree *tree = (TTree*) input->Get("ntuple_sim");
 
-    TFile *output = TFile::Open(Form("Acc_%s1_cuts2.root",target.c_str()),"RECREATE");
+    TFile *output = TFile::Open(Form("AccCSMV_%s1.root",target.c_str()),"RECREATE");
 
     float Q2_limits[] = {1.0, 4.0};
     float Xb_limits[] = {0.12, 0.57};
@@ -49,9 +49,9 @@ void accPhiPQ(){
     tree->SetBranchAddress("Nphe",&Nphe);
 
     // Create histograms
-    TH1F *hreco = new TH1F("hreco",Form("Reconstructed, %s target;#phi_{PQ} [deg];Counts",target.c_str()),360,-180,180);
-    TH1F *htrue = new TH1F("htrue",Form("Thrown (Monte Carlo), %s target;#phi_{PQ} [deg];Counts",target.c_str()),360,-180,180);
-    TH1F *hacc = new TH1F("hacc",Form("Acceptance, %s target;#phi_{PQ} [deg];Counts",target.c_str()),360,-180,180);
+    TH1F *hreco = new TH1F("hreco",Form("Reconstructed, %s target;#phi_{PQ} [deg];Counts",target.c_str()),180,-180,180);
+    TH1F *htrue = new TH1F("htrue",Form("Thrown (Monte Carlo), %s target;#phi_{PQ} [deg];Counts",target.c_str()),180,-180,180);
+    TH1F *hacc = new TH1F("hacc",Form("Acceptance, %s target;#phi_{PQ} [deg];Counts",target.c_str()),180,-180,180);
 
     int Nentries = tree->GetEntries();
 
@@ -72,7 +72,8 @@ void accPhiPQ(){
         if (cut_el==false && cut_mc_el==false) continue; // Avoid entering a loop that won't add anything
         int ientries = PhiPQ->size();
         for (int i=0; i<ientries; i++){
-            if ((*pid)[i]==211 && (*Nphe)[i]<25 && (*Zh)[i]>=Zh_limits[0] && (*Zh)[i]<=Zh_limits[1] && (*Pt2)[i]>=Pt2_limits[0] &&
+            // (*Nphe)[i]<25 eliminated
+            if ((*pid)[i]==211  && (*Zh)[i]>=Zh_limits[0] && (*Zh)[i]<=Zh_limits[1] && (*Pt2)[i]>=Pt2_limits[0] &&
               (*Pt2)[i]<=Pt2_limits[1] && (*PhiPQ)[i]>=PhiPQ_limits[0] && (*PhiPQ)[i]<=PhiPQ_limits[1]) cut_had=true;
             else cut_had=false;
 

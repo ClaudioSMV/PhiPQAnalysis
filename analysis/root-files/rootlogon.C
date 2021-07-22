@@ -56,7 +56,7 @@
   // mcStyle->SetTitleStyle(0);
 
   // use bold lines and markers
-  mcStyle->SetMarkerStyle(9); // 9
+  mcStyle->SetMarkerStyle(6); // 9
   mcStyle->SetMarkerSize(1);
   // mcStyle->SetHistLineWidth(2.);
   mcStyle->SetHistLineWidth(1.);
