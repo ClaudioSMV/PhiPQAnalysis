@@ -1,28 +1,28 @@
 
 void nphevs(){
     std::string kind = "data"; // sim or data
-    std::string target = "Pb"; // C, Fe, Pb
+    std::string target = "Fe"; // C, Fe, Pb
 
     std::string file_type;
 
     if (kind == "sim"){
-        file_type = "hsim_"+target+"1.root";
+        file_type = "hsim_"+target+"1_V2.root";
     }
     else if (kind == "data"){
-        file_type = "data_"+target+"1_light.root";
+        file_type = "data_"+target+"1V2_light.root";
     }
 
-    TFile *input = TFile::Open(Form("/home/claudio/work/clas-data/%s",file_type.c_str()),"READ");
+    TFile *input = TFile::Open(Form("../../%s",file_type.c_str()),"READ");
     TTree *tree = (TTree*)input->Get(Form("ntuple_%s",kind.c_str()));
 
-    TFile *output = TFile::Open(Form("/home/claudio/work/clas-data/acceptance/Nphevs_%s%s.root",target.c_str(),kind.c_str()),"RECREATE");
+    TFile *output = TFile::Open(Form("Nphevs_%s%s.root",target.c_str(),kind.c_str()),"RECREATE");
 
     std::string var[] = {"Q2", "Xb", "Zh", "Pt2", "PhiPQ"};
     std::string var_units[] = {"Q^{2} [GeV^{2}]", "X_{b}", "Z_{h}", "P_{t}^{2} [GeV^{2}]", "#phi_{PQ} [deg]"};
 
     float Q2_limits[] = {1.0, 4.0};
     float Xb_limits[] = {0.12, 0.57};
-    float Zh_limits[] = {0., 1.};
+    float Zh_limits[] = {0.0, 1.0};
     float Pt2_limits[] = {0.0, 1.0};
     float PhiPQ_limits[] = {-180.0, 180.0};
 
@@ -82,6 +82,9 @@ void nphevs(){
 
     float Q2 = 0;
     float Xb = 0;
+    float Yb = 0;
+    float W = 0;
+    float vyec = 0;
     std::vector<float> *Zh = 0;
     std::vector<float> *Pt2 = 0;
     std::vector<float> *PhiPQ = 0;
@@ -91,6 +94,9 @@ void nphevs(){
     tree->SetBranchAddress("pid",&pid);
     tree->SetBranchAddress("Q2",&Q2);
     tree->SetBranchAddress("Xb",&Xb);
+    tree->SetBranchAddress("Yb",&Yb);
+    tree->SetBranchAddress("W",&W);
+    tree->SetBranchAddress("vyec",&vyec);
     tree->SetBranchAddress("Zh",&Zh);
     tree->SetBranchAddress("Pt2",&Pt2);
     tree->SetBranchAddress("PhiPQ",&PhiPQ);
@@ -100,25 +106,32 @@ void nphevs(){
     for (int row=0; row<Nentries; row++){
         // if (row == 500) break;
         tree->GetEntry(row);
-        if (TargType!=2) continue; // sim: TT==-9999; data: TT!=2; -> Diff not used here
+        if (TargType!=2) continue;
 
-        if (Q2<Q2_limits[0] || Q2>Q2_limits[1] || Xb<Xb_limits[0] || Xb>Xb_limits[1]) continue; // electron cuts
-        // 1. < Q2 < 4. && 0.12 < Xb < 0.57;
-        int ientries = pid->size();
-        for (int i=0; i<ientries; i++){
-            if ((*pid)[i]==211 && (*Nphe)[i]>0 && (*Nphe)[i]<200 && // Particle (pion) and Nphe cuts
-              (*Zh)[i]>=Zh_limits[0] && (*Zh)[i]<=Zh_limits[1] && // hadron variable cuts 0. < Zh < 1. (just in case)
-              (*Pt2)[i]>=Pt2_limits[0] && (*Pt2)[i]<=Pt2_limits[1] && // 0. < Pt2 < 1.
-              (*PhiPQ)[i]>=PhiPQ_limits[0] && (*PhiPQ)[i]<=PhiPQ_limits[1]){ // -180. < PhiPQ < +180. (just in case)
-                // hvec: {hQ2, hXb, hZh, hPt2, hPhiPQ};
-                hvec[0]->Fill((*Nphe)[i],Q2);
-                hvec[1]->Fill((*Nphe)[i],Xb);
-                hvec[2]->Fill((*Nphe)[i],(*Zh)[i]);
-                hvec[3]->Fill((*Nphe)[i],(*Pt2)[i]);
-                hvec[4]->Fill((*Nphe)[i],(*PhiPQ)[i]);
-            }
+        bool ecut;
+        if (Q2>Q2_limits[0] && Q2<Q2_limits[1] && Xb>Xb_limits[0] && Xb<Xb_limits[1] &&
+            W>2. && Yb<0.85 && vyec>-1.4 && vyec<1.4) ecut = true;
+        else ecut = false;
+
+        // bool ecut = true;        
+        if (ecut){
+            int ientries = pid->size();
+            for (int i=0; i<ientries; i++){
+                // hadron variable cuts
+                if ((*pid)[i]==211 && (*Nphe)[i]>0 && (*Nphe)[i]<200 &&
+                   (*Zh)[i]>=Zh_limits[0] && (*Zh)[i]<=Zh_limits[1] &&
+                   (*Pt2)[i]>=Pt2_limits[0] && (*Pt2)[i]<=Pt2_limits[1] &&
+                   (*PhiPQ)[i]>=PhiPQ_limits[0] && (*PhiPQ)[i]<=PhiPQ_limits[1]){
+                    // hvec: {hQ2, hXb, hZh, hPt2, hPhiPQ};
+                    hvec[0]->Fill((*Nphe)[i],Q2);
+                    hvec[1]->Fill((*Nphe)[i],Xb);
+                    hvec[2]->Fill((*Nphe)[i],(*Zh)[i]);
+                    hvec[3]->Fill((*Nphe)[i],(*Pt2)[i]);
+                    hvec[4]->Fill((*Nphe)[i],(*PhiPQ)[i]);
+                }
+            } // end of hadron's loop
         }
-    }
+    } // end of electron's loop
 
     output->Write();
     output->Close();

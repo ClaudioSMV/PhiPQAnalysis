@@ -9,3 +9,5 @@ NAME						N°FILES	: DESCRIPTION
 Nphevs_1<file>.root				(2)	: TH2F Nphe vs (Q2, Nu, Zh, Pt2, PhiPQ) (pid, TargType and Nphe [0,200] cuts, Fe)
 Nphevs_simN<2/5>.root				(2)	: Same as above, but Xb instead of Nu and cuts of S.Moran + <2/5> binning Nphe, Fe
 Nphevs_<target><file>.root			(6)	: Same as above, 2 Nphe binning, corrected binning for other variables. <sim/data>
+Nphevs_Fe<file>V2<S/C>.root			(4)	: Same as above, with new GST (improved pion selection criteria) +
+							<Simple/Complete> means C: All cuts (Xb, Yb, W...); S: All but (Yb, W, vyec)

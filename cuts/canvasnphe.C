@@ -1,7 +1,7 @@
 // Nphe vs kinematic variables, one run/file per target
 
 void canvasnphe() {
-    std::string target = "Pb";
+    std::string target = "Fe";
 
     TFile *input_sim = TFile::Open(Form("Nphevs_%ssim.root",target.c_str()),"READ");
     TFile *input_data = TFile::Open(Form("Nphevs_%sdata.root",target.c_str()),"READ");
