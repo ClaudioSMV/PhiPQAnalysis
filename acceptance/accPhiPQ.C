@@ -10,7 +10,7 @@ void accPhiPQ(){
     TFile *input = TFile::Open(Form("../../hsim_%s1V2.root",target.c_str()),"READ");
     TTree *tree = (TTree*) input->Get("ntuple_sim");
 
-    TFile *output = TFile::Open(Form("AccCSMV_%s1.root",target.c_str()),"RECREATE");
+    TFile *output = TFile::Open(Form("AccCSMV_%s2.root",target.c_str()),"RECREATE");
 
     float Q2_limits[] = {1.0, 4.0};
     float Xb_limits[] = {0.12, 0.57};
@@ -21,7 +21,9 @@ void accPhiPQ(){
     int TargType;
     int mc_TargType;
     float Q2, Xb;
+    float Yb, W, vyec;
     float mc_Q2, mc_Xb;
+    float mc_Yb, mc_W;
     std::vector<float> *Zh = 0;
     std::vector<float> *mc_Zh = 0;
     std::vector<float> *Pt2 = 0;
@@ -38,6 +40,11 @@ void accPhiPQ(){
     tree->SetBranchAddress("mc_Q2",&mc_Q2);
     tree->SetBranchAddress("Xb",&Xb);
     tree->SetBranchAddress("mc_Xb",&mc_Xb);
+    tree->SetBranchAddress("Yb",&Yb);
+    tree->SetBranchAddress("mc_Yb",&mc_Yb);
+    tree->SetBranchAddress("W",&W);
+    tree->SetBranchAddress("mc_W",&mc_W);
+    tree->SetBranchAddress("vyec",&vyec);
     tree->SetBranchAddress("Zh",&Zh);
     tree->SetBranchAddress("mc_Zh",&mc_Zh);
     tree->SetBranchAddress("Pt2",&Pt2);
@@ -62,11 +69,11 @@ void accPhiPQ(){
         bool cut_el, cut_had; // Cuts applied over electron/hadron variables
         bool cut_mc_el, cut_mc_had; // Cuts applied over electron/hadron mc_variables
 
-        if (TargType == target_n && Q2>Q2_limits[0] && Q2<Q2_limits[1] &&
-          Xb>Xb_limits[0] && Xb<Xb_limits[1]) cut_el=true;
+        if (TargType == target_n && Q2>Q2_limits[0] && Q2<Q2_limits[1] && Xb>Xb_limits[0] &&
+            Xb<Xb_limits[1] && Yb<0.85 && W>2 && vyec>-1.4 && vyec<1.4) cut_el=true;
         else cut_el=false;
-        if (mc_TargType == target_n && mc_Q2>Q2_limits[0] && mc_Q2<Q2_limits[1] &&
-          mc_Xb>Xb_limits[0] && mc_Xb<Xb_limits[1]) cut_mc_el=true;
+        if (mc_TargType == target_n && mc_Q2>Q2_limits[0] && mc_Q2<Q2_limits[1] && mc_Xb>Xb_limits[0] &&
+            mc_Xb<Xb_limits[1] && mc_Yb<0.85 && mc_W>2) cut_mc_el=true;
         else cut_mc_el=false;
 
         if (cut_el==false && cut_mc_el==false) continue; // Avoid entering a loop that won't add anything

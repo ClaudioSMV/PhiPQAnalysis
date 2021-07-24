@@ -8,9 +8,9 @@ void anSMoran(){
 ////// I/O Files
     TFile *indata = TFile::Open(Form("../../data_%s1V2_light.root",target.c_str()),"READ");
     TTree *tree = (TTree*) indata->Get("ntuple_data");
-    TFile *inacc = TFile::Open(Form("../acceptance/root-files/AccSM_%s1.root",target.c_str()),"READ");
+    TFile *inacc = TFile::Open(Form("../acceptance/root-files/AccSM_%s2.root",target.c_str()),"READ");
 
-    TFile *output = TFile::Open(Form("AnalysisSM_%s1.root",target.c_str()),"RECREATE");
+    TFile *output = TFile::Open(Form("AnalysisSM_%s2.root",target.c_str()),"RECREATE");
 
 ////// Limits and sizes of cuts
     // float Q2_limits[] = {1.0, 4.0};
@@ -40,7 +40,7 @@ void anSMoran(){
 
     int TargType;
     float Q2, Xb;
-    // float Yb, W, vyec;
+    float Yb, W, vyec;
     std::vector<float> *Zh = 0;
     std::vector<float> *Pt2 = 0;
     std::vector<float> *PhiPQ = 0;
@@ -50,6 +50,9 @@ void anSMoran(){
     tree->SetBranchAddress("TargType",&TargType);
     tree->SetBranchAddress("Q2",&Q2);
     tree->SetBranchAddress("Xb",&Xb);
+    tree->SetBranchAddress("Yb",&Yb);
+    tree->SetBranchAddress("W",&W);
+    tree->SetBranchAddress("vyec",&vyec);
     tree->SetBranchAddress("Zh",&Zh);
     tree->SetBranchAddress("Pt2",&Pt2);
     tree->SetBranchAddress("PhiPQ",&PhiPQ);
@@ -100,7 +103,8 @@ void anSMoran(){
         bool ecut=false;
 
         int binQ2=-1, binXb=-1;
-        if (TargType==target_n && Q2>Q2_limits[0] && Q2<Q2_limits[NQ2] && Xb>Xb_limits[0] && Xb<Xb_limits[NXb]){
+        if (TargType==target_n && Q2>Q2_limits[0] && Q2<Q2_limits[NQ2] && Xb>Xb_limits[0] && Xb<Xb_limits[NXb] &&
+            Yb<0.85 && W>2 && vyec>-1.4 && vyec<1.4){
             ecut = true;
             binQ2 = var_position(NQ2, Q2, Q2_limits);
             binXb = var_position(NXb, Xb, Xb_limits);

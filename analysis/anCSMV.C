@@ -7,9 +7,9 @@ void anCSMV(){
 ////// I/O Files
     TFile *indata = TFile::Open(Form("../../data_%s1V2_light.root",target.c_str()),"READ");
     TTree *tree = (TTree*) indata->Get("ntuple_data");
-    TFile *inacc = TFile::Open(Form("../acceptance/root-files/AccCSMV_%s1.root",target.c_str()),"READ");
+    TFile *inacc = TFile::Open(Form("../acceptance/root-files/AccCSMV_%s2.root",target.c_str()),"READ");
 
-    TFile *output = TFile::Open(Form("AnalysisCSMV_%s1.root",target.c_str()),"RECREATE");
+    TFile *output = TFile::Open(Form("AnalysisCSMV_%s2.root",target.c_str()),"RECREATE");
 
 ////// Limits and sizes of cuts
     float Q2_limits[] = {1.0, 4.0};
@@ -24,7 +24,7 @@ void anCSMV(){
 
     int TargType;
     float Q2, Xb;
-    // float Yb, W, vyec;
+    float Yb, W, vyec;
     std::vector<float> *Zh = 0;
     std::vector<float> *Pt2 = 0;
     std::vector<float> *PhiPQ = 0;
@@ -34,6 +34,9 @@ void anCSMV(){
     tree->SetBranchAddress("TargType",&TargType);
     tree->SetBranchAddress("Q2",&Q2);
     tree->SetBranchAddress("Xb",&Xb);
+    tree->SetBranchAddress("Yb",&Yb);
+    tree->SetBranchAddress("W",&W);
+    tree->SetBranchAddress("vyec",&vyec);
     tree->SetBranchAddress("Zh",&Zh);
     tree->SetBranchAddress("Pt2",&Pt2);
     tree->SetBranchAddress("PhiPQ",&PhiPQ);
@@ -53,7 +56,8 @@ void anCSMV(){
 
         bool ecut=false, hcut=false;
 
-        if (TargType==target_n && Q2>Q2_limits[0] && Q2<Q2_limits[1] && Xb>Xb_limits[0] && Xb<Xb_limits[1]){
+        if (TargType==target_n && Q2>Q2_limits[0] && Q2<Q2_limits[1] && Xb>Xb_limits[0] && Xb<Xb_limits[1] &&
+            Yb<0.85 && W>2 && vyec>-1.4 && vyec<1.4){
             ecut = true;
         }
 

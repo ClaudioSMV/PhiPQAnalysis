@@ -13,3 +13,5 @@ Acc_Fe1_cuts2.root				(1)	: Acceptance with easy cuts and Nphe(hadrons)<25
 AccSM_Fe1.root					(1)	: Acceptance using SMoran's way (need to check if all cuts are applied)
 AccSM_Fe1_light.root				(1)	: Same as above but without all acceptance hists saved (lighter file)
 AccCSMV_Fe1.root				(1)	: Acceptance using Claudio's way (need to check if all cuts are applied)
+AccSM_Fe2.root					(1)	: Same as 1, but with Yb, W, vyec, mc_Yb, mc_W cuts
+AccCSMV_Fe2.root				(1)	: Same as 1, but with Yb, W, vyec, mc_Yb, mc_W cuts

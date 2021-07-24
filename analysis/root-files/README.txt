@@ -13,3 +13,5 @@ Analysis_Fe1_<l/g>25.root			(2)	: Correction of data using <l/g> acceptance and 
 AnalysisSM_Fe1.root				(1)	: Correction using SMorán's implementation of both, acceptance and correction
 AnalysisSM_Fe1_light.root			(1)	: Same as above but without all corrected bins saved in the file (lighter)
 AnalysisCSMV_Fe1.root				(1)	: Correction using Claudio's implementation of both, acceptance and correction
+AnalysisSM_Fe2.root				(1)	: Same as 1, but with Yb, W, vyec cuts
+AnalysisCSMV_Fe2.root				(1)	: Same as 1, but with Yb, W, vyec cuts

@@ -10,7 +10,7 @@ void accSMoran(){
   TFile *input = TFile::Open(Form("../../hsim_%s1V2.root",target.c_str()),"READ");
   TTree *tree = (TTree*) input->Get("ntuple_sim");
 
-  TFile *output = TFile::Open(Form("AccSM_%s1.root",target.c_str()),"RECREATE");
+  TFile *output = TFile::Open(Form("AccSM_%s2.root",target.c_str()),"RECREATE");
 
 ////// Limits and sizes of cuts
   // float Q2_limits[] = {1.0, 4.0};
@@ -41,8 +41,9 @@ void accSMoran(){
   int TargType;
   int mc_TargType;
   float Q2, Xb;
-  // float Yb, W, vyec;
+  float Yb, W, vyec;
   float mc_Q2, mc_Xb;
+  float mc_Yb, mc_W;
   std::vector<float> *Zh = 0;
   std::vector<float> *mc_Zh = 0;
   std::vector<float> *Pt2 = 0;
@@ -59,6 +60,11 @@ void accSMoran(){
   tree->SetBranchAddress("mc_Q2",&mc_Q2);
   tree->SetBranchAddress("Xb",&Xb);
   tree->SetBranchAddress("mc_Xb",&mc_Xb);
+  tree->SetBranchAddress("Yb",&Yb);
+  tree->SetBranchAddress("mc_Yb",&mc_Yb);
+  tree->SetBranchAddress("W",&W);
+  tree->SetBranchAddress("mc_W",&mc_W);
+  tree->SetBranchAddress("vyec",&vyec);
   tree->SetBranchAddress("Zh",&Zh);
   tree->SetBranchAddress("mc_Zh",&mc_Zh);
   tree->SetBranchAddress("Pt2",&Pt2);
@@ -68,10 +74,6 @@ void accSMoran(){
   tree->SetBranchAddress("pid",&pid);
   tree->SetBranchAddress("mc_pid",&mc_pid);
   tree->SetBranchAddress("Nphe",&Nphe);
-
-  // tree->SetBranchAddress("Yb",&Yb);
-  // tree->SetBranchAddress("W",&W);
-  // tree->SetBranchAddress("vyec",&vyec);
 
 ////// Create histograms
   TH1F *hreco_fin = new TH1F("hreco_fin",Form("Reconstructed, %s target;#phi_{PQ} [deg];Counts",target.c_str()),180,-180,180);
@@ -113,14 +115,16 @@ void accSMoran(){
     bool ecut=false, mc_ecut=false; // hcut=false, mc_hcut=false;
 
     int binQ2=-1, binXb=-1;
-    if (TargType==target_n && Q2>Q2_limits[0] && Q2<Q2_limits[NQ2] && Xb>Xb_limits[0] && Xb<Xb_limits[NXb]){
+    if (TargType==target_n && Q2>Q2_limits[0] && Q2<Q2_limits[NQ2] && Xb>Xb_limits[0] && Xb<Xb_limits[NXb] &&
+        Yb<0.85 && W>2 && vyec>-1.4 && vyec<1.4){
       ecut = true;
       binQ2 = var_position(NQ2, Q2, Q2_limits);
       binXb = var_position(NXb, Xb, Xb_limits);
     }
 
     int binmc_Q2=-1, binmc_Xb=-1;
-    if (mc_TargType==target_n && mc_Q2>Q2_limits[0] && mc_Q2<Q2_limits[NQ2] && mc_Xb>Xb_limits[0] && mc_Xb<Xb_limits[NXb]){
+    if (mc_TargType==target_n && mc_Q2>Q2_limits[0] && mc_Q2<Q2_limits[NQ2] && mc_Xb>Xb_limits[0] && mc_Xb<Xb_limits[NXb] &&
+        mc_Yb<0.85 && mc_W>2){
       mc_ecut = true;
       binmc_Q2 = var_position(NQ2, mc_Q2, Q2_limits);
       binmc_Xb = var_position(NXb, mc_Xb, Xb_limits);

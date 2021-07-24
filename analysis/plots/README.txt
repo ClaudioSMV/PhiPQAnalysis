@@ -9,4 +9,7 @@ PlotCorrected_Fe1.pdf			(1)	: New hsim & new data (1/4th Fe files -> Low statist
 PlotCorrectedNphe_Fe1.pdf		(1)	: Nphe separations added (no Q2 cut) & low statistics (not only Pion files)
 PlotCorrectedNphe_Fe1_2.pdf		(1)	: Nphe separations added (no Q2 cut) & only Pion files
 PlotCorrected_Fe1_(l/g)25.pdf		(2)	: Raw and Corrected data (Q2 first cut) with Nphe cut less/greater than 25
-AnalysisSM_finFe.pdf			(1)	: Correction of data using SMorán's acceptance, without checked cuts (no Nphe...)
+AnalysisSM_Fe1.pdf			(1)	: Correction of data using SMorán's acceptance, without checked cuts (no Nphe...)
+AnalysisCSMV_Fe1.pdf			(1)	: Correction of data using Claudio's acceptance, without checked cuts (no Nphe...)
+AnalysisSM_Fe2.pdf			(1)	: Same as 1, but with Yb, W, vyec cuts
+AnalysisCSMV_Fe2.pdf			(1)	: Same as 1, but with Yb, W, vyec cuts
