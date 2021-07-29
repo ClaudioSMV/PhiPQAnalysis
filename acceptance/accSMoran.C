@@ -175,63 +175,6 @@ void accSMoran(){
   }
 
   hacc_fin->Divide(hreco_fin,htrue_fin);
-/*
-  for (int iQ2=0; iQ2<(NQ2-1); iQ2++){
-    for (int iXb=0; iXb<(NXb-1); iXb++){
-      for (int iPt2=0; iPt2<(NPt2-1); iPt2++){
-        // Create histograms
-        TH1F *hreco_tmp = new TH1F("hreco_tmp",Form("Reco %i%i%i, %s target",iQ2,iXb,iPt2,target.c_str()),360,-180,180);
-        TH1F *htrue_tmp = new TH1F("htrue_tmp",Form("True %i%i%i, %s target",iQ2,iXb,iPt2,target.c_str()),360,-180,180);
-        TH1F *hacc_tmp = new TH1F("hacc_tmp",Form("Acc %i%i%i, %s target",iQ2,iXb,iPt2,target.c_str()),360,-180,180);
-
-        // LEFT HERE! -> TRY TO CHANGE EVERYTHING, WORKING WITH N_1*N_2*N_3 + 1 HISTS AND PASS THROUGH THE FILES ONCE!
-
-        for (int row=0; row<Nentries; row++){
-          // if (row==5) break;
-          tree->GetEntry(row);
-
-          bool cut_el, cut_had; // Cuts applied over electron/hadron variables
-          bool cut_mc_el, cut_mc_had; // Cuts applied over electron/hadron mc_variables
-
-          if (TargType == target_n && Q2>=Q2_limits[iQ2] && Q2<Q2_limits[iQ2+1] &&
-            Xb>=Xb_limits[iXb] && Xb<Xb_limits[iXb+1]) cut_el=true;
-          else cut_el=false;
-          if (mc_TargType == target_n && mc_Q2>=Q2_limits[iQ2] && mc_Q2<Q2_limits[iQ2+1] &&
-            mc_Xb>=Xb_limits[iXb] && mc_Xb<Xb_limits[iXb+1]) cut_mc_el=true;
-          else cut_mc_el=false;
-
-          if (cut_el==false && cut_mc_el==false) continue; // Avoid entering a loop that won't add anything
-          int ientries = PhiPQ->size();
-          for (int i=0; i<ientries; i++){
-            if ((*pid)[i]==211 && (*Nphe)[i]<25 && (*Zh)[i]>=Zh_limits[0] && (*Zh)[i]<Zh_limits[1] &&
-              (*Pt2)[i]>=Pt2_limits[iPt2] && (*Pt2)[i]<Pt2_limits[iPt2+1] &&
-              (*PhiPQ)[i]>=PhiPQ_limits[0] && (*PhiPQ)[i]<PhiPQ_limits[1]) cut_had=true;
-            else cut_had=false;
-
-            if ((*mc_pid)[i]==211 && (*mc_Zh)[i]>=Zh_limits[0] && (*mc_Zh)[i]<Zh_limits[1] &&
-              (*mc_Pt2)[i]>=Pt2_limits[iPt2] && (*mc_Pt2)[i]<Pt2_limits[iPt2+1] &&
-              (*mc_PhiPQ)[i]>=PhiPQ_limits[0] && (*mc_PhiPQ)[i]<PhiPQ_limits[1]) cut_mc_had=true;
-            else cut_mc_had=false;
-
-            if (cut_el && cut_had) hreco->Fill((*PhiPQ)[i]);
-            if (cut_mc_el && cut_mc_had) htrue->Fill((*mc_PhiPQ)[i]);
-          }
-        } // end electron loop
-
-        hacc_tmp->Sumw2();
-        hacc_tmp->Divide(hreco_tmp, htrue_tmp);
-
-        hreco_fin->Add(hreco_tmp);
-        htrue_fin->Add(htrue_tmp);
-        hacc_fin->Add(hacc_tmp);
-
-        delete hreco_tmp;
-        delete htrue_tmp;
-        delete hacc_tmp;
-      } // end iPt2 loop
-    } // end iXb loop
-  } // end iQ2 loop
-*/
 
 ////// Finishing (Save and close files)
   output->Write();

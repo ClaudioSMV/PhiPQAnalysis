@@ -53,8 +53,6 @@
   mcStyle->SetLabelSize(tsize,"z");
   mcStyle->SetTitleSize(tsize,"z");
 
-  // mcStyle->SetTitleStyle(0);
-
   // use bold lines and markers
   mcStyle->SetMarkerStyle(9);
   mcStyle->SetMarkerSize(1);
@@ -72,8 +70,11 @@
   mcStyle->SetTitleX(0.1);
   mcStyle->SetTitleY(1);
   mcStyle->SetTitleW(0.8);
+  mcStyle->SetTitleBorderSize(0);
+  // mcStyle->SetTitleStyle(0);
   // mcStyle->SetTitleH(0.5);
   //mcStyle->SetOptStat(1111);
+
   mcStyle->SetOptStat(0); // 0 (default)
   //mcStyle->SetOptFit(1111);
   mcStyle->SetOptFit(0); // 0 (default)

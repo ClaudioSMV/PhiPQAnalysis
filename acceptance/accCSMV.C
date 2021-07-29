@@ -1,16 +1,16 @@
-/* Acceptance calculated by imposing general cuts to all kinematic variables at the same time,
-not dividing the cuts and calculating acceptance bin by bin (S.Morán's acceptance) */
+/* Acceptance calculated by imposing general cuts to all kinematic variables at the same time (Claudio's acceptance) */
 
-void accPhiPQ(){
-    std::string target = "Fe"; // Change to calculate acceptance of <target> = {D, C, Fe, Pb}
+void accCSMV(TString target = "Fe"){
+    // <target> = {D, C, Fe, Pb}
     int target_n=2;
-
     if (target == "D") target_n=1;
 
-    TFile *input = TFile::Open(Form("../../hsim_%s1V2.root",target.c_str()),"READ");
+    TString in_file = "../../clas-HSim/hsim_"+target+"1.root";
+    TFile *input = TFile::Open(in_file,"READ");
     TTree *tree = (TTree*) input->Get("ntuple_sim");
 
-    TFile *output = TFile::Open(Form("AccCSMV_%s2.root",target.c_str()),"RECREATE");
+    TString out_file = "AccCSMV_"+target+"1.root";
+    TFile *output = TFile::Open(out_file,"RECREATE");
 
     float Q2_limits[] = {1.0, 4.0};
     float Xb_limits[] = {0.12, 0.57};
@@ -56,9 +56,9 @@ void accPhiPQ(){
     tree->SetBranchAddress("Nphe",&Nphe);
 
     // Create histograms
-    TH1F *hreco = new TH1F("hreco",Form("Reconstructed, %s target;#phi_{PQ} [deg];Counts",target.c_str()),180,-180,180);
-    TH1F *htrue = new TH1F("htrue",Form("Thrown (Monte Carlo), %s target;#phi_{PQ} [deg];Counts",target.c_str()),180,-180,180);
-    TH1F *hacc = new TH1F("hacc",Form("Acceptance, %s target;#phi_{PQ} [deg];Counts",target.c_str()),180,-180,180);
+    TH1F *hreco = new TH1F("hreco","Reconstructed, "+target+" target;#phi_{PQ} [deg];Counts",180,-180,180);
+    TH1F *htrue = new TH1F("htrue","Thrown (Monte Carlo), "+target+" target;#phi_{PQ} [deg];Counts",180,-180,180);
+    TH1F *hacc = new TH1F("hacc","Acceptance, "+target+" target;#phi_{PQ} [deg];Counts",180,-180,180);
 
     int Nentries = tree->GetEntries();
 
