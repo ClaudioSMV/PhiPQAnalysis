@@ -45,8 +45,8 @@ void closureTestAcc(){
 
         if (row < Nentries/2){
             for (int i=0; i<ientries; i++){
-                if ((*PhiPQ)[i] != -9999 && TargType != -9999 && (*pid)[i]==211 && (*Nphe)[i]<25) hreco1->Fill((*PhiPQ)[i]); // It's recommended to avoid restrictions using reconstructed TargType
-                if ((*mc_PhiPQ)[i] != -9999 && mc_TargType == 2 && (*mc_pid)[i]==211) htrue1->Fill((*mc_PhiPQ)[i]); // TargType restriction is good. Problematic bins have TT==0.
+                if ((*PhiPQ)[i] != -9999 && TargType != -9999 && (*pid)[i]==211 && (*Nphe)[i]<25) hreco1->Fill((*PhiPQ)[i]);
+                if ((*mc_PhiPQ)[i] != -9999 && mc_TargType == 2 && (*mc_pid)[i]==211) htrue1->Fill((*mc_PhiPQ)[i]);
             }
         }
         else if (row >= Nentries/2){
@@ -55,7 +55,7 @@ void closureTestAcc(){
                 hacc1->Divide(hreco1,htrue1);
             }
             for (int i=0; i<ientries; i++){
-                if ((*mc_PhiPQ)[i] != -9999 && mc_TargType == 2 && (*mc_pid)[i]==211) htrue2->Fill((*mc_PhiPQ)[i]); // TargType restriction is good. Problematic bins have TT==0.
+                if ((*mc_PhiPQ)[i] != -9999 && mc_TargType == 2 && (*mc_pid)[i]==211) htrue2->Fill((*mc_PhiPQ)[i]);
                 if ((*PhiPQ)[i] != -9999 && TargType != -9999 && (*pid)[i]==211 && (*Nphe)[i]<25){
                     hreco2->Fill((*PhiPQ)[i]);
                     int bin = hacc1->FindBin((*PhiPQ)[i]);

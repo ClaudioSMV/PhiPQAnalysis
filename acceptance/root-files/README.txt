@@ -4,6 +4,7 @@
 ## Easy cuts (S.Moran): Q2, Xb, Zh, Pt2, PhiPQ as seen in table 4.13 (p. 80) of his thesis
 
 NAME						N°FILES	: DESCRIPTION
+						(20)
 
 Acceptance_<target>1_nNphe.root			(4)	: Acceptance calculated without Nphe cut. (and simple cuts)
 Acceptance_<target>1_<l/g>25.root		(5)	: Acceptance calculated with Nphe cut, lower or greater than 25.

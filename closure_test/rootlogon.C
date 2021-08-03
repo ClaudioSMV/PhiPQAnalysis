@@ -54,7 +54,7 @@
   mcStyle->SetTitleSize(tsize,"z");
 
   // use bold lines and markers
-  mcStyle->SetMarkerStyle(6); // 9
+  mcStyle->SetMarkerStyle(9);
   mcStyle->SetMarkerSize(1);
   // mcStyle->SetHistLineWidth(2.);
   mcStyle->SetHistLineWidth(1.);
@@ -63,7 +63,7 @@
   // get rid of X error bars 
   //mcStyle->SetErrorX(0.001);
   // get rid of error bar caps
-  mcStyle->SetEndErrorSize(0); // 0
+  mcStyle->SetEndErrorSize(0);
 
   // do not display any of the standard histogram decorations (default)
   mcStyle->SetOptTitle(); // 0 (default= without title)
@@ -71,8 +71,10 @@
   mcStyle->SetTitleY(1);
   mcStyle->SetTitleW(0.8);
   mcStyle->SetTitleBorderSize(0);
+  // mcStyle->SetTitleStyle(0);
   // mcStyle->SetTitleH(0.5);
   //mcStyle->SetOptStat(1111);
+
   mcStyle->SetOptStat(0); // 0 (default)
   //mcStyle->SetOptFit(1111);
   mcStyle->SetOptFit(0); // 0 (default)

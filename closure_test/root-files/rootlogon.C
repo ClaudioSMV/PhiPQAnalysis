@@ -77,6 +77,9 @@
   //mcStyle->SetOptFit(1111);
   mcStyle->SetOptFit(0); // 0 (default)
 
+  mcStyle->SetStatStyle(0);
+  // mcStyle->SetTitleStyle(0);
+
   // put tick marks on top and RHS of plots
   mcStyle->SetPadTickX(1);
   mcStyle->SetPadTickY(1);
