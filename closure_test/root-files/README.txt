@@ -4,7 +4,9 @@
 ## Easy cuts (S.Moran): Q2, Xb, Zh, Pt2, PhiPQ as seen in table 4.13 (p. 80) of his thesis
 
 NAME						N°FILES	: DESCRIPTION
-						(8)
+						(24)
 
-ClosTestCSMV_<target>1.root			(4)	: Closure Test using all SMoran's cuts, with correct Errors
-ClosTestSM_<target>1.root			(4)	: Closure Test using all SMoran's cuts, with correct Errors
+ClosTestCSMV_<target>1.root			(4)	: Closure Test using all SMoran's cuts, Claudio's way, with correct Errors
+ClosTestSM_<target>1.root			(4)	: Closure Test using all SMoran's cuts, SMoran's way, with correct Errors
+ClosTestCSMV_<target>1_EX_<var>.root		(8)	: CT with all SMoran's cuts + bins in Q2&Nu, Claudio's way. <var>={Zh,Pt2}
+ClosTestSM_<target>1_EX_<var>.root		(8)	: CT with all SMoran's cuts + bins in Q2&Nu, SMoran's way. <var>={Zh,Pt2}
