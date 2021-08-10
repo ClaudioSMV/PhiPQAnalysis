@@ -29,6 +29,7 @@ void canvasCT_EX2(){
     // Canvas options and variables
     Color_t color[3] = {kViolet+10, kRed, kBlack};
     float Nu_limits[] = {2.2, 3.2, 3.7, 4.2};
+    float Q2_limits[] = {1.0, 1.3, 1.8, 4.1};
 
     gStyle->SetErrorX(0);
     gStyle->SetTitleStyle(0);
@@ -69,6 +70,10 @@ void canvasCT_EX2(){
 
                 TString htitle = ";"+varxtitle[i%NvarTS]+";CT_{solid}/CT_{D}";
 
+                TLegend *legend = new TLegend(0.01,0.05,0.70,0.30);
+                legend->SetBorderSize(0);
+                legend->SetNColumns(3);
+
                 THStack *hratioStack = new THStack(Form("hratioStack"+method[i/NvarTS]+"_"+var[i%NvarTS]+"_"+target[itarg]+"%i",iNubin),htitle);
                 double ratiomin = 0.5001; // 0.5001;
                 double ratiomax = 1.4999; // 1.4999;
@@ -85,6 +90,7 @@ void canvasCT_EX2(){
                     hratio_solid->SetLineColor(color[iQ2bin]);
                     hratio_solid->SetMarkerColor(color[iQ2bin]);
                     hratioStack->Add(hratio_solid);
+                    legend->AddEntry(hratio_solid,Form("%.1f < Q^{2} < %.1f GeV^{2}",Q2_limits[iQ2bin],Q2_limits[iQ2bin+1]),"lp");
                 }
                 hratioStack->Draw("NOSTACK");
                 hratioStack->GetYaxis()->CenterTitle();
@@ -115,6 +121,8 @@ void canvasCT_EX2(){
                     else if (var[i%NvarTS]=="PhiPQ") titText = new TText(180.,ratiomax+0.05,method[i/NvarTS]+"_"+var[i%NvarTS]);
                     titText->SetTextAlign(21);
                     titText->Draw();
+
+                    legend->Draw();
                 }
             }
         }
@@ -134,7 +142,7 @@ void canvasCT_EX2(){
     //     else if (ifin==Ncanvas-1) par = ")";
     //     c_Vec[(ifin/2)+(ifin%2)*NvarTS]->Print(pdftitle+".pdf"+par,"pdf");
     // }
-    TString pdftitle = "PlotRatioOfCTsSM0515";
+    TString pdftitle = "PlotDoubleCTRatio3";
     for (int ifin=0; ifin<Ncanvas/2; ifin++){
         TString par = "";
         if (ifin==0) par = "(";

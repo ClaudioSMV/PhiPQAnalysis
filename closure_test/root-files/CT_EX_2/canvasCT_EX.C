@@ -29,11 +29,13 @@ void canvasCT_EX(){
     // Canvas options and variables
     Color_t color[3] = {kViolet+10, kRed, kBlack};
     float Nu_limits[] = {2.2, 3.2, 3.7, 4.2};
+    float Q2_limits[] = {1.0, 1.3, 1.8, 4.1};
 
     gStyle->SetErrorX(0);
     gStyle->SetTitleStyle(0);
-    gStyle->SetOptTitle(1);
+    gStyle->SetOptTitle(0);
     gStyle->SetMarkerStyle(7);
+    gStyle->SetTextSize(12);
 
     // Fill canvases
     std::vector<TCanvas*> c_Vec;
@@ -67,6 +69,9 @@ void canvasCT_EX(){
 
                 TString htitle = ";"+varxtitle[i%NvarTS]+";Corr/True";
 
+                TLegend *legend = new TLegend();
+                //legend->SetNColumns(3);
+                legend->SetBorderSize(0);
                 // THStack *hratioStack = new THStack(Form("hratioStack"+method[i/NvarTS]+"_"+var[i%NvarTS]+"_"+target[itarg]+"%i",iNubin),htitle);
                 double ratiomin = 0.0001; // 0.5111;
                 double ratiomax = 1.9999; // 1.4999;
@@ -79,12 +84,21 @@ void canvasCT_EX(){
                     hratio_tmp->SetMinimum(ratiomin);
                     hratio_tmp->SetMaximum(ratiomax);
                     hratio_tmp->GetYaxis()->CenterTitle();
+                    hratio_tmp->GetYaxis()->SetLabelSize(10);
+                    hratio_tmp->GetYaxis()->SetTitleSize(12);
+                    hratio_tmp->GetYaxis()->SetTitleOffset(3.5);
+                    hratio_tmp->GetYaxis()->SetNdivisions(505);
                     hratio_tmp->GetXaxis()->CenterTitle();
+                    hratio_tmp->GetXaxis()->SetLabelSize(10);
+                    hratio_tmp->GetXaxis()->SetTitleSize(12);
+                    hratio_tmp->GetXaxis()->SetTitleOffset(3);
+                    hratio_tmp->GetXaxis()->SetNdivisions(505);
+                    legend->AddEntry(hratio_tmp,Form("%.1f < Q^{2} < %.1f GeV^{2}",Q2_limits[iQ2bin],Q2_limits[iQ2bin+1]),"lp");
                     if (!firstDrawn){
                         hratio_tmp->Draw();
                         firstDrawn=true;
-                    } 
-                    else {
+                    }
+                    else{
                         hratio_tmp->Draw("SAME");
                     }
                 }
@@ -102,17 +116,20 @@ void canvasCT_EX(){
                                                                                        Nu_limits[iNubin],Nu_limits[iNubin+1]));
                     else if (var[i%NvarTS]=="PhiPQ") nuText = new TLatex(216,1.,Form("%.1f < #nu < %.1f [GeV]",
                                                                          Nu_limits[iNubin],Nu_limits[iNubin+1]));
-                    nuText->SetTextSize(0.06);
+                    // nuText->SetTextSize(0.06);
                     nuText->SetTextAlign(22);
                     nuText->SetTextAngle(90);
                     nuText->Draw();
                 }
                 if (itarg==3 && iNubin==0){
                     TText *titText;
-                    if (var[i%NvarTS]=="Zh"||var[i%NvarTS]=="Pt2") titText = new TText(1.3,ratiomax,method[i/NvarTS]+"_"+var[i%NvarTS]);
-                    else if (var[i%NvarTS]=="PhiPQ") titText = new TText(280,ratiomax,method[i/NvarTS]+"_"+var[i%NvarTS]);
+                    if (var[i%NvarTS]=="Zh"||var[i%NvarTS]=="Pt2") titText = new TText(1.35,1.,method[i/NvarTS]+"_"+var[i%NvarTS]);
+                    else if (var[i%NvarTS]=="PhiPQ") titText = new TText(307.,1.,method[i/NvarTS]+"_"+var[i%NvarTS]); // 280
                     titText->SetTextAlign(22);
+                    titText->SetTextAngle(0);
                     titText->Draw();
+
+                    legend->Draw();
                 }
             }
         }
@@ -125,13 +142,20 @@ void canvasCT_EX(){
         c_Vec.push_back(cratio);
     }
 
-    TString pdftitle = "PlotRatio_Revisited0020";
-    for (int ifin=0; ifin<Ncanvas; ifin++){
+    TString pdftitle = "PlotRatioSM";
+    // for (int ifin=0; ifin<Ncanvas; ifin++){
+    //     TString par = "";
+    //     if (ifin==0) par = "(";
+    //     else if (ifin==Ncanvas-1) par = ")";
+    //     c_Vec[(ifin/2)+(ifin%2)*NvarTS]->Print(pdftitle+".pdf"+par,"pdf");
+    // }
+    for (int ifin=0; ifin<Ncanvas/2; ifin++){
         TString par = "";
         if (ifin==0) par = "(";
-        else if (ifin==Ncanvas-1) par = ")";
-        c_Vec[(ifin/2)+(ifin%2)*NvarTS]->Print(pdftitle+".pdf"+par,"pdf");
+        else if (ifin==Ncanvas/2-1) par = ")";
+        c_Vec[ifin]->Print(pdftitle+".pdf"+par,"pdf");
     }
+
 }
 
 //// FUNCTIONS
