@@ -1,9 +1,9 @@
-// Four targets acceptance comparison side by side
+// Four targets, closure tests over all electron variable's range
 void CanvasPartition(TCanvas *C,const Int_t Nx = 2,const Int_t Ny = 2,
                      Float_t lMargin = 0.15, Float_t rMargin = 0.05,
                      Float_t bMargin = 0.15, Float_t tMargin = 0.05);
 
-void canvasCT_EX(){
+void canvasCT_EX_all(){
     TString target[] = {"D", "C", "Fe", "Pb"};
     TString method[] = {"SM", "CSMV"};
     TString var[] = {"Zh", "Pt2", "PhiPQ"};
@@ -27,8 +27,7 @@ void canvasCT_EX(){
     }
 
     // Canvas options and variables
-    Color_t color[3] = {kViolet+10, kRed, kBlack};
-    float Nu_limits[] = {2.2, 3.2, 3.7, 4.2};
+    Color_t color[4] = {kRed, kMagenta, kBlue, kGreen};
 
     gStyle->SetErrorX(0);
     gStyle->SetTitleStyle(0);
@@ -42,77 +41,36 @@ void canvasCT_EX(){
     for (int i=0; i<Ncanvas; i++){
         TCanvas *cratio = new TCanvas("cratio"+method[i/NvarTS]+"_"+var[i%NvarTS],"CT ratio "+method[i/NvarTS]+var[i%NvarTS]);
 
-        // Number of PADS
-        const Int_t Nx = 4;
-        const Int_t Ny = 3;
-
-        // Margins
-        Float_t lMargin = 0.06;
-        Float_t rMargin = 0.12;
-        Float_t bMargin = 0.06;
-        Float_t tMargin = 0.06;
-
-        // Canvas setup
-	    CanvasPartition(cratio,Nx,Ny,lMargin,rMargin,bMargin,tMargin);
-
-        TPad *pad[Nx][Ny];
-
         for (int itarg=0; itarg<NtargetTS; itarg++){
-            for (int iNubin=0; iNubin<3; iNubin++){
-                cratio->cd(0);
+            cratio->cd(0);
 
-                pad[itarg][iNubin] = (TPad*) gROOT->FindObject(Form("pad_%i_%i",itarg,2-iNubin));
-                pad[itarg][iNubin]->Draw();
-                pad[itarg][iNubin]->cd();
+            TString htitle = "CT ratio all ("+var[i%NvarTS]+"), "+method[i/NvarTS]+";"+varxtitle[i%NvarTS]+";Corr/True";
 
-                TString htitle = ";"+varxtitle[i%2]+";Corr/True";
+            int ratiobin = i%NvarTS + itarg*NvarTS + (i/NvarTS)*NtargetTS*NvarTS;
+            TH1F *hratio_tmp = (TH1F*) input_Vec[ratiobin]->Get("hratio_all");
+            hratio_tmp->SetTitle(htitle);
 
-                THStack *hratioStack = new THStack(Form("hratioStack"+method[i/NvarTS]+"_"+var[i%NvarTS]+"_"+target[itarg]+"%i",iNubin),htitle);
-                hratioStack->SetMinimum(0.5111);
-                hratioStack->SetMaximum(1.4999);
-                for (int iQ2bin=0; iQ2bin<3; iQ2bin++){
-                    int ratiobin = i%NvarTS + itarg*NvarTS + (i/NvarTS)*NtargetTS*NvarTS;
-                    TH1F *hratio_tmp = (TH1F*) input_Vec[ratiobin]->Get(Form("hratio%i",iNubin + iQ2bin*3));
-                    hratio_tmp->SetLineColor(color[iQ2bin]);
-                    hratio_tmp->SetMarkerColor(color[iQ2bin]);
-                    hratioStack->Add(hratio_tmp);
-                }
-                hratioStack->Draw("NOSTACK");
-                hratioStack->GetYaxis()->CenterTitle();
-                hratioStack->GetXaxis()->CenterTitle();
-                if (iNubin==0){
-                    TText *targText = new TText(.5,1.35,target[itarg]);
-                    targText->SetTextAlign(11);
-                    targText->Draw();
-                }
-                if (itarg==3){
-                    TLatex *nuText = new TLatex(1.1,1.,Form("%.1f < #nu < %.1f [GeV]",Nu_limits[iNubin],Nu_limits[iNubin+1]));
-                    nuText->SetTextSize(0.06);
-                    nuText->SetTextAlign(22);
-                    nuText->SetTextAngle(90);
-                    nuText->Draw();
-                }
-                if (itarg==3 && iNubin==0){
-                    TText *titText = new TText(1.3,1.35,method[i/3]+"_"+var[i%3]);
-                    titText->SetTextAlign(11);
-                    titText->Draw();
-                }
-            }
+            double ratiomin = 0.0001; // 0.5001;
+            double ratiomax = 1.9999; // 1.4999;
+            hratio_tmp->SetMinimum(ratiomin);
+            hratio_tmp->SetMaximum(ratiomax);
+
+            hratio_tmp->GetYaxis()->CenterTitle();
+            hratio_tmp->GetXaxis()->CenterTitle();
+
+            hratio_tmp->SetLineColor(color[itarg]);
+            hratio_tmp->SetMarkerColor(color[itarg]);
+            hratio_tmp->Draw("SAME");
         }
         cratio->cd();
-        // TString par;
-        // if (i==0) par = "(";
-        // else if (i==3) par = ")";
-        // else par = "";
-        // cratio->Print("PlotRatio3.pdf"+par,"pdf");
         c_Vec.push_back(cratio);
     }
 
-    TString pdftitle = "PlotRatio_Revisited";
-    for (int ifin=0; ifin<NtargetTS; ifin++){
+    TString pdftitle = "PlotRatio_all0020";
+    for (int ifin=0; ifin<Ncanvas; ifin++){
         TString par = "";
         if (ifin==0) par = "(";
-        else if (ifin==NtargetTS-1) par = ")";
+        else if (ifin==Ncanvas-1) par = ")";
         c_Vec[(ifin/2)+(ifin%2)*NvarTS]->Print(pdftitle+".pdf"+par,"pdf");
     }
 }
@@ -156,7 +114,6 @@ void CanvasPartition(TCanvas *C,const Int_t Nx,const Int_t Ny,
 		}
 
 		for (Int_t j=0;j<Ny;j++) {
-
 			if (j==0) {
 				vposd = 0.0;
 				vposu = bMargin + vStep;

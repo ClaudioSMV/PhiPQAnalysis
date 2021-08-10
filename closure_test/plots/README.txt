@@ -1,6 +1,4 @@
-## closure-test plots
+## closure-test plots are stored along with the .root files that generate them for ease of comprehension
 
 NAME						N°FILES	: DESCRIPTION
-						(8)
 
-PlotRatio1.pdf					(4)	: Closure Test using all SMoran's cuts, with correct Errors

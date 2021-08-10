@@ -4,9 +4,9 @@
 ## Easy cuts (S.Moran): Q2, Xb, Zh, Pt2, PhiPQ as seen in table 4.13 (p. 80) of his thesis
 
 NAME						N°FILES	: DESCRIPTION
-						(24)
+						(4)
 
-ClosTestCSMV_<target>1.root			(4)	: Closure Test using all SMoran's cuts, Claudio's way, with correct Errors
-ClosTestSM_<target>1.root			(4)	: Closure Test using all SMoran's cuts, SMoran's way, with correct Errors
-ClosTestCSMV_<target>1_EX_<var>.root		(8)	: CT with all SMoran's cuts + bins in Q2&Nu, Claudio's way. <var>={Zh,Pt2}
-ClosTestSM_<target>1_EX_<var>.root		(8)	: CT with all SMoran's cuts + bins in Q2&Nu, SMoran's way. <var>={Zh,Pt2}
+CT_PhiPQ_1 (folder)				(1)	: Closure Test using all SMoran's cuts, with correct Errors
+CT_EX_1 (folder)				(1)	: CT with all SMoran's cuts + bins in Q2&Nu, Claudio's way. <var>={Zh,Pt2}
+CT_PhiPQ_2 (folder)				(1)	: Same as EX_1, but with PhiPQ variable (maybe not well binned)
+CT_EX_2 (folder)				(1)	: Zh, Pt2, PhiPQ with (now well understand) acceptance and corr in diff bins

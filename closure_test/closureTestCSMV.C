@@ -56,16 +56,17 @@ void closureTestCSMV(TString target = "Fe"){
     tree->SetBranchAddress("Nphe",&Nphe);
 
     // Create histograms
-    TH1F *hreco = new TH1F("hreco","Reconstructed, "+target+" target;#phi_{PQ} [deg];Counts",180,-180,180);
-    TH1F *htrue = new TH1F("htrue","Thrown (Monte Carlo), "+target+" target;#phi_{PQ} [deg];Counts",180,-180,180);
-    TH1F *hacc = new TH1F("hacc","Acceptance, "+target+" target;#phi_{PQ} [deg];Counts",180,-180,180);
+    TString htitle = " ("+target+");#phi_{PQ} [deg];Counts";
+    TH1F *hreco = new TH1F("hreco","Reco"+htitle,180,-180,180);
+    TH1F *htrue = new TH1F("htrue","Thrown"+htitle,180,-180,180);
+    TH1F *hacc = new TH1F("hacc","Acce"+htitle,180,-180,180);
 
-    TH1F *hreco_CT = new TH1F("hreco_CT","Reco Closure Test, "+target+";#phi_{PQ} [deg];Counts",180,-180,180);
-    TH1F *htrue_CT = new TH1F("htrue_CT","Thrown Closure Test, "+target+";#phi_{PQ} [deg];Counts",180,-180,180);
-    TH1F *hcorr_CT = new TH1F("hcorr_CT","Corrected Closure Test, "+target+";#phi_{PQ} [deg];Counts",180,-180,180);
+    TH1F *hreco_CT = new TH1F("hreco_CT","Reco CT"+htitle,180,-180,180);
+    TH1F *htrue_CT = new TH1F("htrue_CT","Thrown CT"+htitle,180,-180,180);
+    TH1F *hcorr_CT = new TH1F("hcorr_CT","Corr CT"+htitle,180,-180,180);
 
-    TH1F *hratio = new TH1F("hratio","Closure Test Ratio;#phi_{PQ} [deg];Corr/True",180,-180,180);
-    TH1F *hratio_rebin = new TH1F("hratio_rebin","Closure Test Ratio;#phi_{PQ} [deg];Corr/True",10,-180,180);
+    TH1F *hratio = new TH1F("hratio","CT Ratio;#phi_{PQ} [deg];Corr/True",180,-180,180);
+    TH1F *hratio_rebin = new TH1F("hratio_rebin","CT Ratio;#phi_{PQ} [deg];Corr/True",10,-180,180);
 
     hacc->Sumw2();
     hcorr_CT->Sumw2();
@@ -79,6 +80,10 @@ void closureTestCSMV(TString target = "Fe"){
     for (int row=0; row<Nentries; row++){
         tree->GetEntry(row);
 
+        if (row==Nmiddle){
+            hacc->Divide(hreco,htrue,1,1,"B");
+        }
+
         bool cut_el, cut_had; // Cuts applied over electron/hadron variables
         bool cut_mc_el, cut_mc_had; // Cuts applied over electron/hadron mc_variables
 
@@ -88,10 +93,6 @@ void closureTestCSMV(TString target = "Fe"){
         if (mc_TargType == target_n && mc_Q2>Q2_limits[0] && mc_Q2<Q2_limits[1] && mc_Xb>Xb_limits[0] &&
             mc_Xb<Xb_limits[1] && mc_Yb<0.85 && mc_W>2) cut_mc_el=true;
         else cut_mc_el=false;
-
-        if (row==Nmiddle){
-            hacc->Divide(hreco,htrue,1,1,"B");
-        }
 
         if (cut_el==false && cut_mc_el==false) continue; // Avoid entering a loop that won't add anything
         int ientries = PhiPQ->size();
@@ -108,11 +109,15 @@ void closureTestCSMV(TString target = "Fe"){
                 if (row<Nmiddle) hreco->Fill((*PhiPQ)[i]);
                 else{
                     hreco_CT->Fill((*PhiPQ)[i]);
-                    // float accept = hacc->GetBinContent(hacc->FindBin((*PhiPQ)[i]));
-                    // if (accept!=0){
-                    //     float weight = 1./accept;
-                    //     hcorr_CT->Fill((*PhiPQ)[i],weight);
-                    // }
+                    int bin = hacc->FindBin((*PhiPQ)[i]);
+                    float accept = hacc->GetBinContent(bin);
+                    float err_accept = hacc->GetBinError(bin);
+                    if (accept!=0){
+                        float weight = 1./accept;
+                        float err_weight = weight*err_accept/accept;
+                        hcorr_CT->Fill((*PhiPQ)[i],weight);
+                        // hcorr_CT->Fill((*PhiPQ)[i],weight);
+                    }
                 }
             }
             if (cut_mc_el && cut_mc_had){
