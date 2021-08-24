@@ -1,18 +1,21 @@
-/* Closure Test applied to S.Morán's acceptance */
+/* Closure Test using a 5-d acceptance (S.Morán's acceptance) */
+
 #include "functions.h"
 
-void closureTestSM_EX(TString target = "Fe", TString nfolder = "1"){ //, TString xvar = "Zh"){
-	// if (xvar!="Zh" && xvar!="Pt2" && xvar!="PhiPQ"){
-	// 	std::cout << "ERROR: Variable name" << std::endl;
-	// 	return 0;
-	// }
+void closureTestSM_EX(TString target = "Fe", TString nfold = "*"){
+	if (nfold!="*" && nfold!="1" && nfold!="2" && nfold!="3"){
+        std::cerr << "[ERROR] file doesn't exist" << std::endl;
+        return -1;
+    }
 
-	// I/O Files
-	TString in_file = "../../clas-HSim/hsim_"+target+nfolder+".root";
-    TFile *input = TFile::Open(in_file,"READ");
-    TTree *tree = (TTree*) input->Get("ntuple_sim");
+    // I/O Files
+    TChain *tree = new TChain("ntuple_sim");
+    TString in_file = "../../clas-HSim/hsim_"+target+nfold+".root";
+    tree->Add(in_file);
 
-    TString out_file = "ClosTestSM_"+target+nfolder+"_EX_all.root";
+    TString out_file;
+    if (nfold=="*") out_file = "ClosTestSM_"+target+"FULL_EX.root";
+    else out_file = "ClosTestSM_"+target+nfold+"_EX.root";
     TFile *output = TFile::Open(out_file,"RECREATE");
 
 	// Definition of tree-variables
@@ -264,25 +267,9 @@ void closureTestSM_EX(TString target = "Fe", TString nfolder = "1"){ //, TString
 				int accbin = binPhiPQ + binPt2*NPhiPQ + binZh*NPt2*NPhiPQ +
 							 binNu*NZh*NPt2*NPhiPQ + binQ2*NNu*NZh*NPt2*NPhiPQ;
 				int corbin = binHNu + binHQ2*NHNu;
-				correctCSMV((*Zh)[i], (*PhiPQ)[i], hacc_Vec[accbin], hcorr_CT_Vec[corbin + 0*NHbins]);
-				correctCSMV((*Pt2)[i], (*PhiPQ)[i], hacc_Vec[accbin], hcorr_CT_Vec[corbin + 1*NHbins]);
-				correctCSMV((*PhiPQ)[i], (*PhiPQ)[i], hacc_Vec[accbin], hcorr_CT_Vec[corbin + 2*NHbins]);
-
-				// if (xvar=="Zh"){
-				// 	// hreco_CT_Vec[corbin]->Fill((*Zh)[i]);
-				// 	correct((*Zh)[i], hacc_Vec[accbin], hcorr_CT_Vec[corbin]);
-				// 	correct((*Zh)[i], hacc_Vec[accbin], hcorr_CT_all);
-				// }
-				// else if (xvar=="Pt2"){
-				// 	// hreco_CT_Vec[corbin]->Fill((*Pt2)[i]);
-				// 	correct((*Pt2)[i], hacc_Vec[accbin], hcorr_CT_Vec[corbin]);
-				// 	correct((*Pt2)[i], hacc_Vec[accbin], hcorr_CT_all);
-				// }
-				// else if (xvar=="PhiPQ"){
-				// 	// hreco_CT_Vec[corbin]->Fill((*PhiPQ)[i]);
-				// 	correct((*PhiPQ)[i], hacc_Vec[accbin], hcorr_CT_Vec[corbin]);
-				// 	correct((*PhiPQ)[i], hacc_Vec[accbin], hcorr_CT_all);
-				// }
+				correct((*Zh)[i], (*PhiPQ)[i], hacc_Vec[accbin], hcorr_CT_Vec[corbin + 0*NHbins]);
+				correct((*Pt2)[i], (*PhiPQ)[i], hacc_Vec[accbin], hcorr_CT_Vec[corbin + 1*NHbins]);
+				correct((*PhiPQ)[i], (*PhiPQ)[i], hacc_Vec[accbin], hcorr_CT_Vec[corbin + 2*NHbins]);
 			}
 
 			// int binmc_Zh, binmc_Pt2, binmc_PhiPQ;
@@ -334,7 +321,7 @@ int var_position(int Nvar, float var, float var_limits[]){
 	return -9999;
 }
 
-void correctCSMV(float var_to_corr, float var_acc, TH1F *hacc, TH1F *hcorr){
+void correct(float var_to_corr, float var_acc, TH1F *hacc, TH1F *hcorr){
     int bin = hacc->FindBin(var_acc);
     float accept = hacc->GetBinContent(bin);
     if (accept!=0){
