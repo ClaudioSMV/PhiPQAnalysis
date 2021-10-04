@@ -2,11 +2,16 @@
 
 #include "functions.h"
 
-void acc5d(TString target = "Fe", TString nfold = "*"){
+void acc5d(TString target = "Fe", TString nfold = "*", TString binning_name = ""){
 	if (nfold!="*" && nfold!="1" && nfold!="2" && nfold!="3"){
         std::cerr << "[ERROR] file doesn't exist" << std::endl;
         return -1;
     }
+
+	if (binning_name==""){
+		std::cerr << "[ERROR] write a correct name for the output" << std::endl;
+        return -1;
+	}
 
     // I/O Files
     TChain *tree = new TChain("ntuple_sim");
@@ -14,8 +19,8 @@ void acc5d(TString target = "Fe", TString nfold = "*"){
     tree->Add(in_file);
 
     TString out_file;
-    if (nfold=="*") out_file = "Acc5d_"+target+"A.root";
-    else out_file = "Acc5d_"+target+nfold+".root";
+    if (nfold=="*") out_file = "Acc5d_"+target+"A_"+binning_name+".root";
+    else out_file = "Acc5d_"+target+nfold+"_"+binning_name+".root";
     TFile *output = TFile::Open(out_file,"RECREATE");
 
 	// Definition of tree-variables
@@ -86,18 +91,22 @@ void acc5d(TString target = "Fe", TString nfold = "*"){
 
 	// Create acceptance histograms
 	const Int_t Ndim = 5;
-	// Original: {3, 3, 5, 5, 12} = 2700
-	Int_t nbins[Ndim] = {3, 3, 5, 5, 60}; // PhiPQ binning is really important due to the features seen!
+	// OR : Original: {3, 3, 5, 5, 12} = 2700
+	// CP : PhiPQ central peak: {3, 3, 5, 5, 40} = 9000
+	// Int_t nbins[Ndim] = {3, 3, 5, 5, 12};
+	Int_t nbins[Ndim] = {3, 3, 5, 5, 40}; // PhiPQ binning is really important due to the features seen!
 	Double_t minbins[Ndim] = {1.0, 2.2, 0.0, 0.0, -180.0};
 	Double_t maxbins[Ndim] = {4.1, 4.2, 1.0, 1.0, 180.0};
 
+	// 'Classic' fills the numerator of acceptance with the values of the reconstructed particle, however, 'New' fills the
+	// numerator with the values of the thrown particle that matches with the reconstructed one.
 	THnSparse *hreco = new THnSparseD("hreco","Reco Classic",Ndim,nbins,minbins,maxbins);
 	THnSparse *hreco_new = new THnSparseD("hreco_new","Reco New",Ndim,nbins,minbins,maxbins);
 	THnSparse *htrue = new THnSparseD("htrue","True",Ndim,nbins,minbins,maxbins);
 	THnSparse *hacc = new THnSparseD("hacc","Acc Classic",Ndim,nbins,minbins,maxbins);
-	THnSparse *hacc_new = new THnSparseD("hacc_new","Acc Classic",Ndim,nbins,minbins,maxbins);
+	THnSparse *hacc_new = new THnSparseD("hacc_new","Acc New",Ndim,nbins,minbins,maxbins);
 
-	// Set variable width bins // CHECK HOW TO IMPROVE IT
+	// Set variable width bins
 	Double_t Q2_limits[] = {1.0, 1.3, 1.8, 4.1};
 	Double_t Nu_limits[] = {2.2, 3.2, 3.7, 4.2};
 	Double_t Zh_limits[] = {0.0, 0.15, 0.25, 0.4, 0.7, 1.0};
@@ -117,11 +126,6 @@ void acc5d(TString target = "Fe", TString nfold = "*"){
 	htrue->Sumw2();
 	hacc->Sumw2();
 	hacc_new->Sumw2();
-
-	// Define histogram's variables
-	const Int_t Nxvar = 3;
-    TString xvar[Nxvar] = {"Zh", "Pt2", "PhiPQ"};
-    TString xvarname[Nxvar] = {"Z_{h}", "P_{t}^{2} [GeV^{2}]", "#phi_{PQ} [deg]"};
 
 	// N<var> is the number of bins (array's elements - 1), N<var>+1 is the number of limits (array's elements)
 	int NQ2  = sizeof(Q2_limits)/sizeof(Q2_limits[0]) - 1;
@@ -144,8 +148,8 @@ void acc5d(TString target = "Fe", TString nfold = "*"){
 	float perc = 1.;
 	for (int row=0; row<Nentries; row++){
 		tree->GetEntry(row);
-		if (((float)row/Nentries) > (perc/10)*Nentries){
-			std::cout << "\t" << (perc/10) << "%%" << std::endl;
+		if (row > (perc/4.)*Nentries){
+			std::cout << "\t" << perc*25 << "%" << std::endl;
 			perc++;
 		}
 
@@ -215,8 +219,11 @@ void acc5d(TString target = "Fe", TString nfold = "*"){
 		}
   	} // end filling loop
 
-	std::cout << "Number of pions for acceptance: " << n_lead_pi << " out of " << n_pi << std::endl;
-	std::cout << "Number of pions for acceptance_new: " << n_lead_pi_new << " out of " << n_pi_new << std::endl;
+	std::cout << "\t100%" << " Loop finished!" << std::endl;
+	std::cout << "Number of pions for acceptance: " << n_lead_pi << " out of " << n_pi;
+	std::cout << " (" << Form("%.1f",100*(float)n_lead_pi/n_pi) << "%)" << std::endl;
+	std::cout << "Number of pions for acceptance_new: " << n_lead_pi_new << " out of " << n_pi_new;
+	std::cout << " (" << Form("%.1f",100*(float)n_lead_pi_new/n_pi_new) << "%)" << std::endl;
 
 	// Calculating acceptance (5-dimensional)
 	hacc->Divide(hreco,htrue,1,1,"B");
@@ -233,7 +240,6 @@ void acc5d(TString target = "Fe", TString nfold = "*"){
 	output->Write();
 	output->Close();
 } // End of the macro
-
 
 ////// DEFINITION OF FUNCTIONS
 

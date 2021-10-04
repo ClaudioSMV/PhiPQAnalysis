@@ -2,24 +2,30 @@
 
 #include "functions.h"
 
-void cor5d(TString target = "Fe",TString file_n = "1", bool clust = false){
+void cor5d(TString target = "Fe",TString file_n = "*", TString binning_name = "", bool clust = false){
+
+	if (binning_name==""){
+		std::cerr << "[ERROR] write a correct extension for the acceptance/output file" << std::endl;
+        return -1;
+	}
+
     // I/O Files
     TChain *tree = new TChain("ntuple_data");
 	TString file_type = "_light";
 	if (clust) file_type = "";
-    TString data_file = "../../clas-data/data_"+target+file_n+file_type+".root";
+    TString data_file = "../../clas-data/data_"+target+"1"+file_type+".root";
     tree->Add(data_file);
 
 	TString acc_file_title;
-	if (file_n!="*") acc_file_title = "../acceptance/Acc5d_"+target+file_n+".root";
-	else acc_file_title = "../acceptance/Acc5d_"+target+"A.root";
+	if (file_n!="*") acc_file_title = "../acceptance/Acc5d_"+target+file_n+"_"+binning_name+".root";
+	else acc_file_title = "../acceptance/Acc5d_"+target+"A_"+binning_name+".root";
 	TFile *acc_file = TFile::Open(acc_file_title,"READ");
 	THnSparseD *hacc = (THnSparseD*) acc_file->Get("hacc");
 	THnSparseD *hacc_new = (THnSparseD*) acc_file->Get("hacc_new");
 
 	TString out_file;
-    if (file_n!="*") out_file = "Corr5d_"+target+file_n+".root";
-	else out_file = "Corr5d_"+target+"A.root";
+    if (file_n!="*") out_file = "Corr5d_"+target+file_n+"_"+binning_name+".root";
+	else out_file = "Corr5d_"+target+"A_"+binning_name+".root";
     TFile *output = TFile::Open(out_file,"RECREATE");
 
 	// Definition of tree-variables
@@ -86,21 +92,21 @@ void cor5d(TString target = "Fe",TString file_n = "1", bool clust = false){
 			TH3D *hrawd_tmp = new TH3D(Form("hraw%i%i",iQ2,iNu),"Raw, "+bin_title+axes_title,
 			                           10,Limits[2][0],Limits[2][1],
 									   10,Limits[3][0],Limits[3][1],
-									   10,Limits[4][0],Limits[4][1]);
+									   40,Limits[4][0],Limits[4][1]);
 			hrawd_tmp->Sumw2();
 			hrawd_Vec.push_back(hrawd_tmp);
 
 			TH3D *hcorr_tmp = new TH3D(Form("hcorr%i%i",iQ2,iNu),"Corr, "+bin_title+axes_title,
 			                           10,Limits[2][0],Limits[2][1],
 									   10,Limits[3][0],Limits[3][1],
-									   10,Limits[4][0],Limits[4][1]);
+									   40,Limits[4][0],Limits[4][1]);
 			hcorr_tmp->Sumw2();
 			hcorr_Vec.push_back(hcorr_tmp);
 
 			TH3D *hcorr_new_tmp = new TH3D(Form("hcorrnew%i%i",iQ2,iNu),"Corr New, "+bin_title+axes_title,
 			                           10,Limits[2][0],Limits[2][1],
 									   10,Limits[3][0],Limits[3][1],
-									   10,Limits[4][0],Limits[4][1]);
+									   40,Limits[4][0],Limits[4][1]);
 			hcorr_new_tmp->Sumw2();
 			hcorr_new_Vec.push_back(hcorr_new_tmp);
 		}
@@ -113,8 +119,8 @@ void cor5d(TString target = "Fe",TString file_n = "1", bool clust = false){
 	// Correction-tree loop (Closure Test)
 	for (int row=0; row<Nentries; row++){
 		tree->GetEntry(row);
-		if (((float)row/Nentries) > (perc/10)*Nentries){
-			std::cout << "\t" << (perc/10) << "%%" << std::endl;
+		if (row > (perc/4.)*Nentries){
+			std::cout << "\t" << perc*25 << "%" << std::endl;
 			perc++;
 		}
 
@@ -160,7 +166,9 @@ void cor5d(TString target = "Fe",TString file_n = "1", bool clust = false){
 			if (acc_new_value!=0) hcorr_new_Vec[corbin]->Fill(lead_Zh,lead_Pt2,lead_PhiPQ,1./acc_new_value);
 		}
   	} // end filling loop
-	std::cout << "Finished! Saving and closing." << std::endl;
+	  
+	std::cout << "\t100%" << " Loop finished!" << std::endl;
+	std::cout << "Saving and closing." << std::endl;
 
 	// Finishing (Save and close files)
 	output->Write();

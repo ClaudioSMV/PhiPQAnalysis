@@ -26,19 +26,20 @@
   mcStyle->SetPadLeftMargin(0.18);    // 0.16
 
   // set title offsets (for axis label)
-  mcStyle->SetTitleXOffset(1);
-  mcStyle->SetTitleYOffset(1.4);
+  mcStyle->SetTitleXOffset(2.);
+  mcStyle->SetTitleYOffset(2.);
 
   // use large fonts
   // Int_t font=72; // Helvetica italics
-  Int_t font=42; // Helvetica
-  Double_t tsize=0.04;
-  Double_t Tsize=0.05;
-  // Int_t font=43; // Helvetica
-  // Double_t tsize=18;
+  // Int_t font=42; // Helvetica
+  // Double_t tsize=0.07;
+  // Double_t Tsize=0.07;
+  Int_t font=43; // Helvetica
+  Double_t tsize=12;
+  Double_t tsize_lbl=8;
   mcStyle->SetTextFont(font);
 
-  mcStyle->SetTextSize(Tsize);
+  mcStyle->SetTextSize(tsize);
   mcStyle->SetLabelFont(font,"x");
   mcStyle->SetTitleFont(font,"x");
   mcStyle->SetLabelFont(font,"y");
@@ -46,17 +47,15 @@
   mcStyle->SetLabelFont(font,"z");
   mcStyle->SetTitleFont(font,"z");
   
-  mcStyle->SetLabelSize(tsize,"x");
+  mcStyle->SetLabelSize(tsize_lbl,"x");
   mcStyle->SetTitleSize(tsize,"x");
-  mcStyle->SetLabelSize(tsize,"y");
+  mcStyle->SetLabelSize(tsize_lbl,"y");
   mcStyle->SetTitleSize(tsize,"y");
-  mcStyle->SetLabelSize(tsize,"z");
+  mcStyle->SetLabelSize(tsize_lbl,"z");
   mcStyle->SetTitleSize(tsize,"z");
 
-  // mcStyle->SetTitleStyle(0);
-
   // use bold lines and markers
-  mcStyle->SetMarkerStyle(9);
+  mcStyle->SetMarkerStyle(6); // 9
   mcStyle->SetMarkerSize(1);
   // mcStyle->SetHistLineWidth(2.);
   mcStyle->SetHistLineWidth(1.);
@@ -65,18 +64,22 @@
   // get rid of X error bars 
   //mcStyle->SetErrorX(0.001);
   // get rid of error bar caps
-  mcStyle->SetEndErrorSize(0);
+  mcStyle->SetEndErrorSize(0); // 0
 
   // do not display any of the standard histogram decorations (default)
   mcStyle->SetOptTitle(); // 0 (default= without title)
   mcStyle->SetTitleX(0.1);
   mcStyle->SetTitleY(1);
   mcStyle->SetTitleW(0.8);
+  mcStyle->SetTitleBorderSize(0);
   // mcStyle->SetTitleH(0.5);
   //mcStyle->SetOptStat(1111);
   mcStyle->SetOptStat(0); // 0 (default)
   //mcStyle->SetOptFit(1111);
   mcStyle->SetOptFit(0); // 0 (default)
+
+  mcStyle->SetStatStyle(0);
+  // mcStyle->SetTitleStyle(0);
 
   // put tick marks on top and RHS of plots
   mcStyle->SetPadTickX(1);
