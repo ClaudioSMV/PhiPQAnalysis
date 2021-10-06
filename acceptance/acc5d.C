@@ -19,8 +19,8 @@ void acc5d(TString target = "Fe", TString nfold = "*", TString binning_name = ""
     tree->Add(in_file);
 
     TString out_file;
-    if (nfold=="*") out_file = "Acc5d_"+target+"A_"+binning_name+".root";
-    else out_file = "Acc5d_"+target+nfold+"_"+binning_name+".root";
+    if (nfold=="*") out_file = "./Acc5d/Acc5d_A"+target+"_"+binning_name+".root";
+    else out_file = "./Acc5d/Acc5d_"+target+nfold+"_"+binning_name+".root";
     TFile *output = TFile::Open(out_file,"RECREATE");
 
 	// Definition of tree-variables

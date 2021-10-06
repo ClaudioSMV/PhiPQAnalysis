@@ -2,7 +2,7 @@
 
 #include "functions.h"
 
-void cor5d(TString target = "Fe",TString file_n = "*", TString binning_name = "", bool clust = false){
+void corr5d(TString target = "Fe",TString file_n = "*", TString binning_name = "", bool clust = false){
 
 	if (binning_name==""){
 		std::cerr << "[ERROR] write a correct extension for the acceptance/output file" << std::endl;
@@ -17,15 +17,15 @@ void cor5d(TString target = "Fe",TString file_n = "*", TString binning_name = ""
     tree->Add(data_file);
 
 	TString acc_file_title;
-	if (file_n!="*") acc_file_title = "../acceptance/Acc5d_"+target+file_n+"_"+binning_name+".root";
-	else acc_file_title = "../acceptance/Acc5d_"+target+"A_"+binning_name+".root";
+	if (file_n!="*") acc_file_title = "../acceptance/Acc5d/Acc5d_"+target+file_n+"_"+binning_name+".root";
+	else acc_file_title = "../acceptance/Acc5d/Acc5d_A"+target+"_"+binning_name+".root";
 	TFile *acc_file = TFile::Open(acc_file_title,"READ");
 	THnSparseD *hacc = (THnSparseD*) acc_file->Get("hacc");
 	THnSparseD *hacc_new = (THnSparseD*) acc_file->Get("hacc_new");
 
 	TString out_file;
     if (file_n!="*") out_file = "Corr5d_"+target+file_n+"_"+binning_name+".root";
-	else out_file = "Corr5d_"+target+"A_"+binning_name+".root";
+	else out_file = "Corr5d_A"+target+"_"+binning_name+".root";
     TFile *output = TFile::Open(out_file,"RECREATE");
 
 	// Definition of tree-variables

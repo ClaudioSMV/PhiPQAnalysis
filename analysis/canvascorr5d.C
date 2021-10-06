@@ -11,9 +11,8 @@ void canvascorr5d(TString target = "Fe", TString file_n = "*", TString binning_n
 	}
 
     TString file_name;
-    if (file_n!="*") file_name = "Corr5d_"+target+file_n+"_"+binning_name+".root";
-    else file_name = "Corr5d_"+target+"A_"+binning_name+".root";
-    // TString title = "./root-files/"+file_name+".root";
+    if (file_n!="*") file_name = "./Corr5d/Corr5d_"+target+file_n+"_"+binning_name+".root";
+    else file_name = "./Corr5d/Corr5d_"+target+"A_"+binning_name+".root";
     TFile *input = TFile::Open(file_name,"READ");
 
     // Open files
@@ -131,8 +130,8 @@ void canvascorr5d(TString target = "Fe", TString file_n = "*", TString binning_n
     }
 
     TString pdftitle;
-    if (file_n!="*") pdftitle = target+file_n+"_"+binning_name;
-    else pdftitle = target+"A_"+binning_name;
+    if (file_n!="*") pdftitle = "P_"+target+file_n+"_"+binning_name;
+    else pdftitle = "P_A"+target+"_"+binning_name;
 
     for (int ifin=0; ifin<9; ifin++){
         TString par = "";
