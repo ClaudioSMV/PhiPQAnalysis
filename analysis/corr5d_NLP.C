@@ -15,9 +15,14 @@ void corr5d_NLP(TString target = "Fe", TString nfold = "*", TString binning_name
 
     // I/O Files
     TChain *tree = new TChain("ntuple_data");
-    TString in_file = "../../clas-data/data_"+target+"1.root";
-	if (!cluster) in_file = "../../clas-data/data_"+target+"1_light.root";
-    tree->Add(in_file);
+	TString in_ext = "";
+	if (!cluster) in_ext = "_light";
+	if (target!="D") tree->Add("../../clas-data/data_"+target+"1"+in_ext+".root");
+	else if (target=="D"){
+		tree->Add("../../clas-data/data_C1"+in_ext+".root");
+		tree->Add("../../clas-data/data_Fe1"+in_ext+".root");
+		tree->Add("../../clas-data/data_Pb1"+in_ext+".root");
+	}
 
 	TString acc_path;
     if (nfold=="*") acc_path = "../acceptance/Acc5d_NLP/Acc5dNLP_A"+target+"_"+binning_name+".root";
