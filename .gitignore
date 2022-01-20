@@ -1,0 +1,21 @@
+#Don't ignore anything with dots
+*
+!*.*
+!*/
+
+#Binary and Image
+**.exe
+**.png
+**.jpg
+**.bmp
+**.ps
+**.jpeg
+**.eps
+**.pcm
+
+#Root
+**.root
+
+#Specific of this format
+test*.C
+**/root-files
