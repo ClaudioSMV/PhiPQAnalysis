@@ -135,6 +135,8 @@ void acc5d_NLP(TString target = "Fe", TString nfold = "*", TString binning_name 
 	std::cout << "Nentries: " << Nentries << std::endl;
 	std::cout << "Calculating acceptance..." << std::endl;
 
+	int count_all_match_pi = 0, count_reco_pi = 0;
+
 	float perc = 1.;
 	for (int row=0; row<Nentries; row++){
 		tree->GetEntry(row);
@@ -143,52 +145,56 @@ void acc5d_NLP(TString target = "Fe", TString nfold = "*", TString binning_name 
 			perc++;
 		}
 
-		bool mc_ecut=false, ecut=false;
+		bool good_mc_ecut=false, good_reco_ecut=false;
 
 		if (mc_TargType==target_n && mc_Q2>Q2_limits[0] && mc_Q2<Q2_limits[NQ2] &&
 			mc_Yb<0.85 && mc_W>2 && mc_Nu>Nu_limits[0] && mc_Nu<Nu_limits[NNu]){
-			mc_ecut = true;
+			good_mc_ecut = true;
 		}
 
-		if (!mc_ecut) continue;
+		if (!good_mc_ecut) continue;
 
 		if (TargType==target_n && Q2>Q2_limits[0] && Q2<Q2_limits[NQ2] &&
 			Yb<0.85 && W>2 && vyec>-1.4 && vyec<1.4 && Nu>Nu_limits[0] && Nu<Nu_limits[NNu]){
-			ecut = true;
+			good_reco_ecut = true;
 		}
 
 		int ientries = PhiPQ->size();
 		for (int i=0; i<ientries; i++){
 			if ((*mc_pid)[i]!=211) continue;
 
-			bool mc_hcut = false;
+			bool good_mc_hcut = false;
 
 			if ((*mc_Zh)[i]>Zh_limits[0] && (*mc_Zh)[i]<Zh_limits[NZh] && (*mc_Pt2)[i]>Pt2_limits[0] &&
 				(*mc_Pt2)[i]<Pt2_limits[NPt2] && (*mc_PhiPQ)[i]>PhiPQ_limits[0] &&
 				(*mc_PhiPQ)[i]<PhiPQ_limits[NPhiPQ]){
-				mc_hcut = true;
+				good_mc_hcut = true;
 				Double_t new_mc_entry[] = {mc_Q2, mc_Nu, (*mc_Zh)[i], (*mc_Pt2)[i], (*mc_PhiPQ)[i]};
 				htrue->Fill(new_mc_entry);
+				count_all_match_pi++;
 			}
 
-			if (!mc_hcut) continue;
-			if (!ecut && (*pid)[i]==211 && (*Zh)[i]>Zh_limits[0] && (*Zh)[i]<Zh_limits[NZh] &&
+			if (!good_mc_hcut) continue;
+			if (good_reco_ecut && (*pid)[i]==211 && (*Zh)[i]>Zh_limits[0] && (*Zh)[i]<Zh_limits[NZh] &&
 			(*Pt2)[i]>Pt2_limits[0] && (*Pt2)[i]<Pt2_limits[NPt2] && (*PhiPQ)[i]>PhiPQ_limits[0] &&
 			(*PhiPQ)[i]<PhiPQ_limits[NPhiPQ]){
 				// I'm only filling with generated values, so the unique use of the reconstructed variables
 				// is to check if the particle is well reconstructed, but it doesn't matter the actual value
 				Double_t new_entry[] = {mc_Q2, mc_Nu, (*mc_Zh)[i], (*mc_Pt2)[i], (*mc_PhiPQ)[i]};
 				hreco->Fill(new_entry);
+				count_reco_pi++;
 			}
 		} // end of hadrons' loop
   	} // end filling loop
 
 	std::cout << "\t100%" << " Acceptance calculated!\n" << std::endl;
+	std::cout << "Number of well reconstructed pions: " << count_reco_pi << " out of " << count_all_match_pi;
+	std::cout << " (" << Form("%.1f",100*(float)count_reco_pi/count_all_match_pi) << "%)\n" << std::endl;
 
 	std::cout << "Total bins: " << NTotBins << std::endl;
-	std::cout << "Non empty bins:" << std::endl;
-	std::cout << "\tThrown - " << htrue->GetNbins() << " (" << 100.*htrue->GetNbins()/NTotBins << "%)" << std::endl;
-	std::cout << "\tReconstructed - " << hreco->GetNbins() << " (" << 100.*hreco->GetNbins()/NTotBins << "%)" << std::endl;
+	std::cout << "Filled bins:" << std::endl;
+	std::cout << "\tReconstructed \t- " << hreco->GetNbins() << " (" << Form("%.1f",100.*hreco->GetNbins()/NTotBins) << "%)" << std::endl;
+	std::cout << "\tThrown \t\t- " << htrue->GetNbins() << " (" << Form("%.1f",100.*htrue->GetNbins()/NTotBins) << "%)\n" << std::endl;
 
 	// Calculating acceptance (5-dimensional)
 	hacc->Divide(hreco,htrue,1,1,"B");

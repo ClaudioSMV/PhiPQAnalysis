@@ -92,9 +92,9 @@ void acc5d(TString target = "Fe", TString nfold = "*", TString binning_name = ""
 	// Create acceptance histograms
 	const Int_t Ndim = 5;
 	// OR : Original: {3, 3, 5, 5, 12} = 2700
-	// CP : PhiPQ central peak: {3, 3, 5, 5, 40} = 9000
-	// Int_t nbins[Ndim] = {3, 3, 5, 5, 12};
-	Int_t nbins[Ndim] = {3, 3, 5, 5, 40}; // PhiPQ binning is really important due to the features seen!
+	// CP : PhiPQ central peak: {3, 3, 5, 5, 40} = 9000 // PhiPQ binning is really important due to the features seen!
+	Int_t nbins[Ndim] = {3, 3, 5, 5, 12};
+	if (binning_name=="CP") nbins[4] = 40;
 	Double_t minbins[Ndim] = {1.0, 2.2, 0.0, 0.0, -180.0};
 	Double_t maxbins[Ndim] = {4.1, 4.2, 1.0, 1.0, 180.0};
 
@@ -142,8 +142,8 @@ void acc5d(TString target = "Fe", TString nfold = "*", TString binning_name = ""
 	int Nentries = tree->GetEntries();
 	std::cout << "Nentries: " << Nentries << std::endl;
 
-	int n_lead_pi = 0, n_pi = 0;
-	int n_lead_pi_new = 0, n_pi_new = 0;
+	int count_reco_pi = 0, count_match_reco_pi = 0, count_mc_pi = 0;
+	int count_lead_reco_pi = 0, count_lead_mc_pi = 0;
 
 	float perc = 1.;
 	for (int row=0; row<Nentries; row++){
@@ -170,6 +170,7 @@ void acc5d(TString target = "Fe", TString nfold = "*", TString binning_name = ""
 		float lead_Zh=-999, lead_Pt2=-999, lead_PhiPQ=-999;
 		float match_Zh=-999, match_Pt2=-999, match_PhiPQ=-999;
 		float lead_mc_Zh=-999, lead_mc_Pt2=-999, lead_mc_PhiPQ=-999;
+
 		int ientries = PhiPQ->size();
 		for (int i=0; i<ientries; i++){
 			if ((*pid)[i]==211 && (*Zh)[i]>Zh_limits[0] && (*Zh)[i]<Zh_limits[NZh] &&
@@ -186,8 +187,8 @@ void acc5d(TString target = "Fe", TString nfold = "*", TString binning_name = ""
 						match_PhiPQ = (*mc_PhiPQ)[i];
 					}
 				}
-				n_pi++;
-				if (match_Zh!=-999) n_pi_new++;
+				count_reco_pi++;
+				if (match_Zh!=-999) count_match_reco_pi++;
 			}
 
 			if ((*mc_pid)[i]==211 && (*mc_Zh)[i]>Zh_limits[0] && (*mc_Zh)[i]<Zh_limits[NZh] &&
@@ -205,31 +206,34 @@ void acc5d(TString target = "Fe", TString nfold = "*", TString binning_name = ""
 		if (ecut==true && hcut==true){
 			Double_t new_entry[] = {Q2, Nu, lead_Zh, lead_Pt2, lead_PhiPQ};
 			hreco->Fill(new_entry);
-			n_lead_pi++;
+			count_lead_reco_pi++;
 
 			if (match_Zh!=-999){
 				Double_t new_entry_2[] = {mc_Q2, mc_Nu, match_Zh, match_Pt2, match_PhiPQ};
 				hreco_new->Fill(new_entry_2);
-				n_lead_pi_new++;
+				count_lead_mc_pi++;
 			}
 		}
 		if (mc_ecut==true && mc_hcut == true){
 			Double_t new_mc_entry[] = {mc_Q2, mc_Nu, lead_mc_Zh, lead_mc_Pt2, lead_mc_PhiPQ};
 			htrue->Fill(new_mc_entry);
+			count_mc_pi++;
 		}
   	} // end filling loop
 
-	std::cout << "\t100%" << " Loop finished!" << std::endl;
-	std::cout << "Number of pions for acceptance: " << n_lead_pi << " out of " << n_pi;
-	std::cout << " (" << Form("%.1f",100*(float)n_lead_pi/n_pi) << "%)" << std::endl;
-	std::cout << "Number of pions for acceptance_new: " << n_lead_pi_new << " out of " << n_pi_new;
-	std::cout << " (" << Form("%.1f",100*(float)n_lead_pi_new/n_pi_new) << "%)\n" << std::endl;
+
+	std::cout << "\t100%" << " Loop finished!\n" << std::endl;
+	std::cout << "Number of corrected pions using reco-variables: " << count_lead_reco_pi << " out of " << count_reco_pi;
+	std::cout << " (" << Form("%.1f",100*(float)count_lead_reco_pi/count_reco_pi) << "%)" << std::endl;
+	std::cout << "Number of corrected pions using mc-variables: " << count_lead_mc_pi << " out of " << count_match_reco_pi;
+	std::cout << " (" << Form("%.1f",100*(float)count_lead_mc_pi/count_match_reco_pi) << "%)" << std::endl;
+	std::cout << "Number of generated leading pions: " << count_mc_pi << "\n" << std::endl;
 
 	std::cout << "Total bins: " << NTotBins << std::endl;
-	std::cout << "Non empty bins:" << std::endl;
+	std::cout << "Filled bins:" << std::endl;
 	std::cout << "\tThrown - " << htrue->GetNbins() << " (" << 100.*htrue->GetNbins()/NTotBins << "%)" << std::endl;
-	std::cout << "\tReconstructed - " << hreco->GetNbins() << " (" << 100.*hreco->GetNbins()/NTotBins << "%)" << std::endl;
-	std::cout << "\tReconstructed New - " << hreco_new->GetNbins() << " (" << 100.*hreco_new->GetNbins()/NTotBins << "%)\n" << std::endl;
+	std::cout << "\tReconstructed using reco-variables \t" << hreco->GetNbins() << " (" << 100.*hreco->GetNbins()/NTotBins << "%)" << std::endl;
+	std::cout << "\tReconstructed using mc-variables \t" << hreco_new->GetNbins() << " (" << 100.*hreco_new->GetNbins()/NTotBins << "%)\n" << std::endl;
 
 	// Calculating acceptance (5-dimensional)
 	hacc->Divide(hreco,htrue,1,1,"B");
