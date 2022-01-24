@@ -189,12 +189,12 @@ void acc5d_NLP(TString target = "Fe", TString nfold = "*", TString binning_name 
 
 	std::cout << "\t100%" << " Acceptance calculated!\n" << std::endl;
 	std::cout << "Number of well reconstructed pions: " << count_reco_pi << " out of " << count_all_match_pi;
-	std::cout << " (" << Form("%.1f",100*(float)count_reco_pi/count_all_match_pi) << "%)\n" << std::endl;
+	std::cout << " (" << Form("%.3f",100*(float)count_reco_pi/count_all_match_pi) << "%)\n" << std::endl;
 
 	std::cout << "Total bins: " << NTotBins << std::endl;
 	std::cout << "Filled bins:" << std::endl;
-	std::cout << "\tReconstructed \t- " << hreco->GetNbins() << " (" << Form("%.1f",100.*hreco->GetNbins()/NTotBins) << "%)" << std::endl;
-	std::cout << "\tThrown \t\t- " << htrue->GetNbins() << " (" << Form("%.1f",100.*htrue->GetNbins()/NTotBins) << "%)\n" << std::endl;
+	std::cout << "\tReconstructed \t- " << hreco->GetNbins() << " (" << Form("%.3f",100.*hreco->GetNbins()/NTotBins) << "%)" << std::endl;
+	std::cout << "\tThrown \t\t- " << htrue->GetNbins() << " (" << Form("%.3f",100.*htrue->GetNbins()/NTotBins) << "%)\n" << std::endl;
 
 	// Calculating acceptance (5-dimensional)
 	hacc->Divide(hreco,htrue,1,1,"B");

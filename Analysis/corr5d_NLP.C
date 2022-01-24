@@ -25,8 +25,8 @@ void corr5d_NLP(TString target = "Fe", TString nfold = "*", TString binning_name
 	}
 
 	TString acc_path;
-    if (nfold=="*") acc_path = "../acceptance/Acc5d_NLP/Acc5dNLP_A"+target+"_"+binning_name+".root";
-    else acc_path = "../acceptance/Acc5d_NLP/Acc5dNLP_"+target+nfold+"_"+binning_name+".root";
+    if (nfold=="*") acc_path = "../Acceptance/Acc5d_NLP/Acc5dNLP_A"+target+"_"+binning_name+".root";
+    else acc_path = "../Acceptance/Acc5d_NLP/Acc5dNLP_"+target+nfold+"_"+binning_name+".root";
     TFile *acc_file = TFile::Open(acc_path,"READ");
 	THnSparseD *hacc = (THnSparseD*) acc_file->Get("hacc");
 
@@ -87,6 +87,8 @@ void corr5d_NLP(TString target = "Fe", TString nfold = "*", TString binning_name
 	// Create raw and corrected histograms
 	std::vector<TH3D*> hrawd_Vec;
 	std::vector<TH3D*> hcorr_Vec;
+	std::vector<TH3D*> hrawd_NLP_Vec;
+	std::vector<TH3D*> hcorr_NLP_Vec;
 
 	TString axes_title = "; Z_{h}; P_{t}^{2} [GeV^{2}]; #phi_{PQ} [deg]";
 
@@ -108,17 +110,34 @@ void corr5d_NLP(TString target = "Fe", TString nfold = "*", TString binning_name
 									   40,Limits[4][0],Limits[4][1]);
 			hcorr_tmp->Sumw2();
 			hcorr_Vec.push_back(hcorr_tmp);
+
+			TH3D *hrawd_NLP_tmp = new TH3D(Form("hrawNLP%i%i",iQ2,iNu),"Raw NLP, "+bin_title+axes_title,
+			                           10,Limits[2][0],Limits[2][1],
+									   10,Limits[3][0],Limits[3][1],
+									   40,Limits[4][0],Limits[4][1]);
+			hrawd_NLP_tmp->Sumw2();
+			hrawd_NLP_Vec.push_back(hrawd_NLP_tmp);
+
+			TH3D *hcorr_NLP_tmp = new TH3D(Form("hcorrNLP%i%i",iQ2,iNu),"Corr NLP, "+bin_title+axes_title,
+			                           10,Limits[2][0],Limits[2][1],
+									   10,Limits[3][0],Limits[3][1],
+									   40,Limits[4][0],Limits[4][1]);
+			hcorr_NLP_tmp->Sumw2();
+			hcorr_NLP_Vec.push_back(hcorr_NLP_tmp);
 		}
 	}
 	
 	// Correction-tree loop
-	std::cout << "Starting correction loop!" << std::endl;
 
 	// int Nentries = 200; // for testing
 	int Nentries = tree->GetEntries();
 	std::cout << "Nentries: " << Nentries << std::endl;
-	float perc = 1.;
+	std::cout << "Starting correction loop!" << std::endl;
 
+	int count_NLP_raw_pi = 0, count_NLP_corr_pi = 0;
+	int count_lead_raw_pi = 0, count_lead_corr_pi = 0;
+
+	float perc = 1.;
 	for (int row=0; row<Nentries; row++){
 		tree->GetEntry(row);
 		if (row > (perc/4.)*Nentries){
@@ -126,17 +145,18 @@ void corr5d_NLP(TString target = "Fe", TString nfold = "*", TString binning_name
 			perc++;
 		}
 
-		bool ecut=false, hcut=false;
+		bool good_ecut=false, good_hcut=false;
 		int binQ2, binNu;
 
 		if (TargType==target_n && Q2>Limits[0][0] && Q2<Limits[0][1] &&
 			Yb<0.85 && W>2 && vyec>-1.4 && vyec<1.4 && Nu>Limits[1][0] && Nu<Limits[1][1]){
-			ecut = true;
+			good_ecut = true;
 			binQ2 = var_position(NQ2, Q2, Q2_limits);
 			binNu = var_position(NNu, Nu, Nu_limits);
 		}
 
-		if (!ecut) continue;
+		if (!good_ecut) continue;
+		int corbin = binNu + binQ2*NNu;
 
 		float lead_Zh=-999, lead_Pt2=-999, lead_PhiPQ=-999;
 		int ientries = PhiPQ->size();
@@ -144,28 +164,53 @@ void corr5d_NLP(TString target = "Fe", TString nfold = "*", TString binning_name
 			if ((*pid)[i]==211 && (*Zh)[i]>Limits[2][0] && (*Zh)[i]<Limits[2][1] && (*Pt2)[i]>Limits[3][0] &&
 				(*Pt2)[i]<Limits[3][1] && (*PhiPQ)[i]>Limits[4][0] && (*PhiPQ)[i]<Limits[4][1]){
 
-				hcut = true;
+				good_hcut = true;
 				if ((*Zh)[i] > lead_Zh){
 					lead_Zh = (*Zh)[i];
 					lead_Pt2 = (*Pt2)[i];
 					lead_PhiPQ = (*PhiPQ)[i];
 				}
+
+				if (good_ecut){
+					count_NLP_raw_pi++;
+					Double_t accbin_NLP[] = {Q2, Nu, (*Zh)[i], (*Pt2)[i], (*PhiPQ)[i]};
+
+					hrawd_NLP_Vec[corbin]->Fill((*Zh)[i], (*Pt2)[i], (*PhiPQ)[i]);
+					
+					Int_t bin = hacc->GetBin(accbin_NLP);
+					Double_t acc_value = hacc->GetBinContent(bin);
+					if (acc_value!=0){
+						hcorr_NLP_Vec[corbin]->Fill((*Zh)[i], (*Pt2)[i], (*PhiPQ)[i],1./acc_value);
+						count_NLP_corr_pi++;
+					}
+				}
 			}
 		} // end of hadrons' loop
 
-		if (ecut && hcut){
+		if (good_ecut && good_hcut){
+			count_lead_raw_pi++;
 			Double_t accbin[] = {Q2, Nu, lead_Zh, lead_Pt2, lead_PhiPQ};
-			int corbin = binNu + binQ2*NNu;
 
 			hrawd_Vec[corbin]->Fill(lead_Zh,lead_Pt2,lead_PhiPQ);
 			
 			Int_t bin = hacc->GetBin(accbin);
 			Double_t acc_value = hacc->GetBinContent(bin);
-			if (acc_value!=0) hcorr_Vec[corbin]->Fill(lead_Zh,lead_Pt2,lead_PhiPQ,1./acc_value);
+			if (acc_value!=0){
+				hcorr_Vec[corbin]->Fill(lead_Zh,lead_Pt2,lead_PhiPQ,1./acc_value);
+				count_lead_corr_pi++;
+			}
 		}
   	} // end filling loop
-	  
+
 	std::cout << "\t100%" << " Correction loop finished!" << std::endl;
+	std::cout << "Ratio leading pion / NLP: " << count_lead_raw_pi << " / " << count_NLP_raw_pi;
+	std::cout << " (" << Form("%.3f",100*(float)count_lead_raw_pi/count_NLP_raw_pi) << "%)\n" << std::endl;
+
+	std::cout << "Number of well corrected lead pions: " << count_lead_corr_pi << " out of " << count_lead_raw_pi;
+	std::cout << " (" << Form("%.3f",100*(float)count_lead_corr_pi/count_lead_raw_pi) << "%)\n" << std::endl;
+	std::cout << "Number of well corrected NLP pions: " << count_NLP_corr_pi << " out of " << count_NLP_raw_pi;
+	std::cout << " (" << Form("%.3f",100*(float)count_NLP_corr_pi/count_NLP_raw_pi) << "%)\n" << std::endl;
+
 	std::cout << "Saving and closing." << std::endl;
 
 	// Finishing (Save and close files)
