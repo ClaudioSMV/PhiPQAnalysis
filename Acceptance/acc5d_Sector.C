@@ -106,7 +106,7 @@ void acc5d_Sector(TString target = "Fe", TString nfold = "*", TString binning_na
 	// OR : Original: {3, 3, 5, 5, 12} = 2700
 	// CP : PhiPQ central peak: {3, 3, 5, 5, 40} = 9000 // PhiPQ binning is really important due to the features seen!
 	Int_t nbins[Ndim] = {3, 3, 5, 5, 12};
-	if (binning_name=="CP") nbins[4] = 40;
+	if (binning_name=="CP" || binning_name=="CP_half") nbins[4] = 40;
 	Double_t minbins[Ndim] = {1.0, 2.2, 0.0, 0.0, -180.0};
 	Double_t maxbins[Ndim] = {4.1, 4.2, 1.0, 1.0, 180.0};
 
@@ -123,6 +123,7 @@ void acc5d_Sector(TString target = "Fe", TString nfold = "*", TString binning_na
 	std::vector<THnSparse*> hreco_Vec;
 	std::vector<THnSparse*> htrue_Vec;
 	std::vector<THnSparse*> hacc_Vec;
+	std::vector<TH1I*> hSectDiff_sec_Vec;
 
 	for (int j=0; j<6; j++){
 		THnSparse *hreco_tmp = new THnSparseD(Form("hreco%i",j),Form("Reco Sector %i",j),Ndim,nbins,minbins,maxbins);
@@ -137,7 +138,12 @@ void acc5d_Sector(TString target = "Fe", TString nfold = "*", TString binning_na
 		hreco_Vec.push_back(hreco_tmp);
 		htrue_Vec.push_back(htrue_tmp);
 		hacc_Vec.push_back(hacc_tmp);
+
+		TH1I *hSectDiff_sec = new TH1I(Form("hSectDiff_sec%i",j),Form("mc_Sector %i - Sector; mc_Sector - Sector; Counts",j), 13,-6,7);
+		hSectDiff_sec_Vec.push_back(hSectDiff_sec);
 	}
+
+	TH1I *hSectDiff_all = new TH1I("hSectDiff_all","All mc_Sector - Sector; mc_Sector - Sector; Counts", 13,-6,7);
 	
 
 	// N<var> is the number of bins (array's elements - 1), N<var>+1 is the number of limits (array's elements)
@@ -153,6 +159,10 @@ void acc5d_Sector(TString target = "Fe", TString nfold = "*", TString binning_na
 
 	// int Nentries = 200; // for testing
 	int Nentries = tree->GetEntries();
+	if (binning_name=="CP_half"){
+		Nentries = tree->GetEntries()/2;
+		std::cout << "Running half of the total entries! ";
+	}
 	std::cout << "Nentries: " << Nentries << std::endl;
 	std::cout << "Calculating acceptance..." << std::endl;
 
@@ -204,6 +214,9 @@ void acc5d_Sector(TString target = "Fe", TString nfold = "*", TString binning_na
 				// is to check if the particle is well reconstructed, but it doesn't matter the actual value
 				Double_t new_entry[] = {mc_Q2, mc_Nu, (*mc_Zh)[i], (*mc_Pt2)[i], (*mc_PhiPQ)[i]};
 				hreco_Vec[(*mc_Sector)[i]]->Fill(new_entry);
+
+				hSectDiff_sec_Vec[(*mc_Sector)[i]]->Fill((*mc_Sector)[i] - (*Sector)[i]);
+				hSectDiff_all->Fill((*mc_Sector)[i] - (*Sector)[i]);
 				if ((*mc_Sector)[i]!=(*Sector)[i]){
 					std::cout << "Sector != mc_Sector in row " << row << ", entry " << i << std::endl;
 					bad_Sector_reco++;
@@ -226,6 +239,8 @@ void acc5d_Sector(TString target = "Fe", TString nfold = "*", TString binning_na
 		std::cout << Form("\tReconstructed \tS%i ",j) << hreco_Vec[j]->GetNbins() << " (" << Form("%.3f",100.*hreco_Vec[j]->GetNbins()/NTotBins) << "%)" << std::endl;
 		std::cout << Form("\tThrown \t\tS%i ",j) << htrue_Vec[j]->GetNbins() << " (" << Form("%.3f",100.*htrue_Vec[j]->GetNbins()/NTotBins) << "%)" << std::endl;
 	}
+
+	std::cout << "\nNumber of bad reconstructed sector: " << bad_Sector_reco << std::endl;
 
 	// Calculating acceptance (5-dimensional)
 	for (int j=0; j<6; j++){

@@ -100,7 +100,7 @@ void acc5d_Xf(TString target = "Fe", TString nfold = "*", TString binning_name =
 	// OR : Original: {3, 3, 5, 5, 12} = 2700
 	// CP : PhiPQ central peak: {3, 3, 5, 5, 40} = 9000 // PhiPQ binning is really important due to the features seen!
 	Int_t nbins[Ndim] = {3, 3, 5, 5, 12};
-	if (binning_name=="CP") nbins[4] = 40;
+	if (binning_name=="CP" || binning_name=="CP_half") nbins[4] = 40;
 	Double_t minbins[Ndim] = {1.0, 2.2, 0.0, 0.0, -180.0};
 	Double_t maxbins[Ndim] = {4.1, 4.2, 1.0, 1.0, 180.0};
 
@@ -138,6 +138,10 @@ void acc5d_Xf(TString target = "Fe", TString nfold = "*", TString binning_name =
 
 	// int Nentries = 200; // for testing
 	int Nentries = tree->GetEntries();
+	if (binning_name=="CP_half"){
+		Nentries = tree->GetEntries()/2;
+		std::cout << "Running half of the total entries! ";
+	}
 	std::cout << "Nentries: " << Nentries << std::endl;
 	std::cout << "Calculating acceptance..." << std::endl;
 
